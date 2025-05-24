@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Trigger on version tags like v1.0.0
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # to create release
+      packages: write # to publish to GitHub Packages
+      id-token: write # to enable OIDC for NPM provenance
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x' # Use a specific version for release
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify version consistency
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          GIT_TAG=${GITHUB_REF#refs/tags/}
+          if [ "v$PKG_VERSION" != "$GIT_TAG" ]; then
+            echo "Error: package.json version (v$PKG_VERSION) does not match git tag ($GIT_TAG)"
+            exit 1
+          fi
+          echo "Versions match: v$PKG_VERSION"
+
+      - name: Build package (if necessary)
+        # Add build steps here if your package needs compilation
+        # run: npm run build
+        run: echo "No build step required for this package."
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            Automated release for version ${{ github.ref_name }}.
+            See [CHANGELOG.md](CHANGELOG.md) for details.
+          draft: false
+          prerelease: false
+
+      - name: Publish to NPM
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # NPM_TOKEN is a secret in GitHub repo settings
+
+      - name: Publish to GitHub Packages
+        run: |
+          echo "@dotwee:registry=https://npm.pkg.github.com" >> .npmrc
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GITHUB_TOKEN is automatically available 

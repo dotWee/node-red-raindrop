@@ -1,6 +1,11 @@
 # Node-RED Raindrop Client
 
-A comprehensive Node-RED contribution package for interacting with the Raindrop.io API. This package provides a complete set of nodes for managing bookmarks, collections, tags, and user information in Raindrop.io.
+[![GitHub License](https://img.shields.io/github/license/dotWee/node-red-raindrop)](https://github.com/dotWee/node-red-raindrop)
+[![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/dotwee/node-red-raindrop)](https://github.com/dotWee/node-red-raindrop)
+[![NPM Version](https://img.shields.io/npm/v/%40dotwee%2Fnode-red-raindrop)](https://www.npmjs.com/package/@dotwee/node-red-raindrop)
+[![NPM Downloads](https://img.shields.io/npm/dm/%40dotwee%2Fnode-red-raindrop)](https://www.npmjs.com/package/@dotwee/node-red-raindrop)
+
+A comprehensive [Node-RED](https://nodered.org) contribution package for interacting with the [Raindrop.io](https://raindrop.io) API. This package provides a complete set of nodes for managing bookmarks, collections, tags, and user information in Raindrop.io.
 
 ## Features
 
@@ -301,10 +306,4 @@ For issues and questions:
 
 ## Changelog
 
-### v1.0.0
-
-- Initial release under `@dotwee/node-red-raindrop`
-- Complete CRUD operations for raindrops and collections
-- Advanced search and filtering capabilities
-- Comprehensive test coverage
-- Full API coverage based on OpenAPI specification
+See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes.
