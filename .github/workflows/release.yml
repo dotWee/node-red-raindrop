@@ -60,9 +60,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # NPM_TOKEN is a secret in GitHub repo settings
 
-      - name: Publish to GitHub Packages
-        run: |
-          echo "@dotwee:registry=https://npm.pkg.github.com" >> .npmrc
-          npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GITHUB_TOKEN is automatically available 
+      #- name: Publish to GitHub Packages
+      #  run: |
+      #    echo "@dotwee:registry=https://npm.pkg.github.com" >> .npmrc
+      #    npm publish
+      #  env:
+      #    NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GITHUB_TOKEN is automatically available 
