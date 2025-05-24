@@ -1,0 +1,2918 @@
+openapi: 3.0.3
+info:
+  title: Raindrop API (Unofficial)
+  description: |-
+    **UNOFFICIAL** OpenAPI specification of Raindrop API.
+
+    This OpenAPI spec has been made by hand with reference to official documentation because it is not provided by Raindrop.io.
+
+    Because official documentation not maintained well, there are very (highly) likely to have mismatch in schemas.
+    As we can't inspect and address all issues, schema being updated as we find issues.
+
+    Any contributions are welcome. Bug report, schema update, adding descriptions or functions, please don't hesitate to create an issue.
+  version: 0.1.0
+  termsOfService: https://developer.raindrop.io/terms
+  contact:
+    name: API documentation issues
+    url: https://github.com/lasuillard/raindrop-client/issues
+externalDocs:
+  description: Official Raindrop API documentation
+  url: https://developer.raindrop.io/
+servers:
+  - url: https://api.raindrop.io
+    description: Raindrop API Server
+tags:
+  - name: authentication
+    externalDocs:
+      description: Official documentation
+      url: https://developer.raindrop.io/v1/authentication
+  - name: collection
+    externalDocs:
+      description: Official documentation
+      url: https://developer.raindrop.io/v1/collections
+  - name: raindrop
+    externalDocs:
+      description: Official documentation
+      url: https://developer.raindrop.io/v1/raindrops
+  - name: highlight
+    externalDocs:
+      description: Official documentation
+      url: https://developer.raindrop.io/v1/highlights
+  - name: user
+    externalDocs:
+      description: Official documentation
+      url: https://developer.raindrop.io/v1/user
+  - name: tag
+    externalDocs:
+      description: Official documentation
+      url: https://developer.raindrop.io/v1/tags
+  - name: filter
+    externalDocs:
+      description: Official documentation
+      url: https://developer.raindrop.io/v1/filters
+  - name: import
+    externalDocs:
+      description: Official documentation
+      url: https://developer.raindrop.io/v1/import
+security:
+  - bearerAuth: []
+paths:
+  /v1/oauth/authorize:
+    get:
+      operationId: authorize
+      tags:
+        - authentication
+      # checkov:skip=CKV_OPENAPI_5:Auth endpoint open to unauthorized users
+      security: []
+      parameters:
+        - name: redirect_uri
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: client_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        307:
+          description: Redirect to Raindrop authorization page
+  /v1/oauth/access_token:
+    post:
+      operationId: getOrRefreshToken
+      tags:
+        - authentication
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/ObtainToken"
+                - $ref: "#/components/schemas/RefreshToken"
+            examples:
+              Obtain new token:
+                value:
+                  code: c8983220-1cca-4626-a19d-801a6aae003c
+                  client_id: 5e1c589cf6f48c0211311383
+                  redirect_uri: https://oauthdebugger.com/debug
+                  client_secret: c3363988-9d27-4bc6-a0ae-d126ce78dc09
+                  grant_type: authorization_code
+              Refresh existing token:
+                value:
+                  client_id: 5e1c589cf6f48c0211311383
+                  client_secret: c3363988-9d27-4bc6-a0ae-d126ce78dc09
+                  grant_type: refresh_token
+                  # checkov:skip=CKV_SECRET_6:Just an example secrets
+                  refresh_token: c8080368-fad2-4a9f-b2c9-73d3z850111b
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/TokenResponse"
+                  - $ref: "#/components/schemas/TokenErrorResponse"
+
+  /rest/v1/collections:
+    get:
+      operationId: getRootCollections
+      tags:
+        - collection
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetRootCollectionsResponse"
+    put:
+      operationId: reorderAllCollections
+      tags:
+        - collection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sort:
+                  type: string
+                expanded:
+                  type: boolean
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleResponse"
+    delete:
+      operationId: removeCollections
+      tags:
+        - collection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                # checkov:skip=CKV_OPENAPI_21:Source documentation does not provide max item detail
+                ids:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RemoveCollectionsResponse"
+
+  /rest/v1/collections/childrens:
+    get:
+      operationId: getChildCollections
+      tags:
+        - collection
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetChildCollectionsResponse"
+
+  /rest/v1/collection/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getCollection
+      tags:
+        - collection
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetCollectionResponse"
+    put:
+      operationId: updateCollection
+      tags:
+        - collection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCollectionRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateCollectionResponse"
+    delete:
+      operationId: removeCollection
+      tags:
+        - collection
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleResponse"
+
+  /rest/v1/collection:
+    post:
+      operationId: createCollection
+      tags:
+        - collection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCollectionRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateCollectionResponse"
+
+  /rest/v1/collection/{id}/cover:
+    put:
+      operationId: uploadCollectionCover
+      tags:
+        - collection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                cover:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadCollectionCoverResponse"
+
+  /rest/v1/collections/merge:
+    put:
+      operationId: mergeCollections
+      tags:
+        - collection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to:
+                  type: integer
+                ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MergeCollectionsResponse"
+
+  /rest/v1/collections/clean:
+    put:
+      operationId: removeAllEmptyCollections
+      tags:
+        - collection
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RemoveAllEmptyCollectionsResponse"
+
+  /rest/v1/collection/-99:
+    delete:
+      operationId: emptyTrash
+      tags:
+        - collection
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleResponse"
+
+  /rest/v1/user/stats:
+    get:
+      operationId: getSystemCollectionStats
+      tags:
+        - collection
+        - user
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetSystemCollectionStatsResponse"
+
+  /rest/v1/collection/{id}/sharing:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getCollaborators
+      tags:
+        - collection
+      responses:
+        200:
+          description: OK
+    post:
+      operationId: shareCollection
+      tags:
+        - collection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShareCollectionRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShareCollectionResponse"
+
+    delete:
+      operationId: unshareOrLeaveCollection
+      tags:
+        - collection
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleResponse"
+
+  /rest/v1/collection/{id}/sharing/{userId}:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      operationId: changeCollaboratorAccessLevel
+      tags:
+        - collection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  $ref: "#/components/schemas/Role"
+      responses:
+        200:
+          description: OK
+    delete:
+      operationId: deleteCollaborator
+      tags:
+        - collection
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleResponse"
+
+  /rest/v1/collection/{id}/join:
+    post:
+      operationId: acceptInvitation
+      tags:
+        - collection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: boolean
+                  role:
+                    $ref: "#/components/schemas/Role"
+
+  /rest/v1/collections/covers/{text}:
+    get:
+      operationId: searchCovers
+      tags:
+        - collection
+      parameters:
+        - name: text
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchCoversResponse"
+
+  /rest/v1/collections/covers:
+    get:
+      operationId: getFeaturedCovers
+      tags:
+        - collection
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetFeaturedCoversResponse"
+
+  /rest/v1/raindrop:
+    post:
+      operationId: createRaindrop
+      tags:
+        - raindrop
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRaindropRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateRaindropResponse"
+
+  /rest/v1/raindrop/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getRaindrop
+      tags:
+        - raindrop
+        - highlight
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetRaindropResponse"
+    put:
+      operationId: updateRaindrop
+      tags:
+        - raindrop
+        - highlight
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRaindropRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateRaindropResponse"
+    delete:
+      operationId: removeRaindrop
+      tags:
+        - raindrop
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RemoveRaindropResponse"
+
+  /rest/v1/raindrop/file:
+    put:
+      operationId: uploadFile
+      tags:
+        - raindrop
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UploadFileRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadFileResponse"
+
+  /rest/v1/raindrop/{id}/cover:
+    put:
+      operationId: uploadRaindropCover
+      tags:
+        - raindrop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UploadRaindropCoverRequest"
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadRaindropCoverResponse"
+
+  /rest/v1/raindrop/{id}/cache:
+    get:
+      operationId: getPermanentCopy
+      tags:
+        - raindrop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        307:
+          description: OK
+
+  /rest/v1/raindrop/suggest:
+    post:
+      operationId: suggestForNewBookmark
+      tags:
+        - raindrop
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                link:
+                  type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuggestForNewBookmarkResponse"
+
+  /rest/v1/raindrop/{id}/suggest:
+    get:
+      operationId: suggestForExistingBookmark
+      tags:
+        - raindrop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuggestForExistingBookmarkResponse"
+
+  /rest/v1/raindrops/{collectionId}:
+    parameters:
+      - name: collectionId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getRaindrops
+      tags:
+        - raindrop
+      parameters:
+        - name: sort
+          in: query
+          schema:
+            type: string
+        - name: perpage
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetRaindropsResponse"
+    put:
+      operationId: updateRaindrops
+      tags:
+        - raindrop
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRaindropsRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateRaindropsResponse"
+    delete:
+      operationId: removeRaindrops
+      tags:
+        - raindrop
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemoveRaindropsRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RemoveRaindropsResponse"
+
+  /rest/v1/raindrops:
+    post:
+      operationId: createRaindrops
+      tags:
+        - raindrop
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRaindropsRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateRaindropsResponse"
+
+  /rest/v1/highlights:
+    get:
+      operationId: getAllHighlights
+      tags:
+        - highlight
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: perpage
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetAllHighlightsResponse"
+
+  /rest/v1/highlights/{collectionId}:
+    get:
+      operationId: getHighlightsInCollection
+      tags:
+        - highlight
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: perpage
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetHighlightsInCollectionResponse"
+
+  /rest/v1/user:
+    get:
+      operationId: getCurrentUser
+      tags:
+        - user
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetCurrentUserResponse"
+    put:
+      operationId: updateCurrentUser
+      tags:
+        - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCurrentUserRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateCurrentUserResponse"
+
+  /rest/v1/user/{name}:
+    get:
+      operationId: getPublicUserByName
+      tags:
+        - user
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetPublicUserByNameResponse"
+
+  /rest/v1/user/connect/{provider}:
+    get:
+      operationId: connectSocialNetworkProvider
+      tags:
+        - user
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [facebook, google, twitter, vkontate, dropbox, gdrive]
+      responses:
+        307:
+          description: Redirect
+
+  /rest/v1/user/connect/{provider}/revoke:
+    get:
+      operationId: disconnectSocialNetworkProvider
+      tags:
+        - user
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [facebook, google, twitter, vkontate, dropbox, gdrive]
+      responses:
+        200:
+          description: OK
+
+  /rest/v1/tags/{collectionId}:
+    get:
+      operationId: getTagsInCollection
+      tags:
+        - tag
+      parameters:
+        - name: collectionId
+          in: path
+          required: false
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetTagsInCollectionResponse"
+    put:
+      operationId: renameOrMergeTags
+      tags:
+        - tag
+      parameters:
+        - name: collectionId
+          in: path
+          required: false
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                replace:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleResponse"
+    delete:
+      operationId: removeTagsFromCollection
+      tags:
+        - tag
+      parameters:
+        - name: collectionId
+          in: path
+          required: false
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleResponse"
+
+  /rest/v1/filters/{collectionId}:
+    get:
+      operationId: getFilters
+      tags:
+        - filter
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: tagsSort
+          in: query
+          schema:
+            type: string
+            enum: [-count, _id]
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetFiltersResponse"
+
+  /rest/v1/import/url/parse:
+    get:
+      operationId: parseURL
+      tags:
+        - import
+      parameters:
+        - name: url
+          in: query
+          schema:
+            type: string
+            format: uri
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParseURLResponse"
+
+  /rest/v1/import/url/exists:
+    post:
+      operationId: checkURLsExist
+      tags:
+        - import
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                urls:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckURLsExistResponse"
+
+  /rest/v1/import/file:
+    post:
+      operationId: importHTMLBookmarkFile
+      tags:
+        - import
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                import:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportHTMLBookmarkFileResponse"
+components:
+  securitySchemes:
+    # checkov:skip=CKV_OPENAPI_3:FIXME
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ObtainToken:
+      type: object
+      required: [grant_type, code, client_id, client_secret, redirect_uri]
+      properties:
+        grant_type:
+          type: string
+          enum: [authorization_code]
+        code:
+          type: string
+        client_id:
+          type: string
+        client_secret:
+          type: string
+        redirect_uri:
+          type: string
+    RefreshToken:
+      type: object
+      required: [client_id, client_secret, grant_type, refresh_token]
+      properties:
+        client_id:
+          type: string
+        client_secret:
+          type: string
+        grant_type:
+          type: string
+          enum: [refresh_token]
+        refresh_token:
+          type: string
+    TokenResponse:
+      type: object
+      required: [access_token, refresh_token, expires_in, token_type]
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        expires:
+          type: integer
+          deprecated: true
+        expires_in:
+          type: integer
+        token_type:
+          type: string
+          enum: [Bearer]
+    TokenErrorResponse:
+      type: object
+      required: [result, status, errorMessage]
+      properties:
+        result:
+          type: boolean
+        status:
+          type: integer
+        errorMessage:
+          type: string
+
+    Role:
+      type: string
+      enum: [member, viewer]
+
+    UserConfig:
+      type: object
+      required:
+        [
+          broken_level,
+          font_size,
+          last_collection,
+          raindrops_sort,
+          raindrops_view,
+        ]
+      properties:
+        broken_level:
+          type: string
+        font_color:
+          type: string
+        font_size:
+          type: integer
+        lang:
+          type: string
+        last_collection:
+          type: integer
+        raindrops_buttons:
+          type: array
+          items:
+            type: string
+        raindrops_hide:
+          type: array
+          items:
+            type: string
+        raindrops_search_by_score:
+          type: boolean
+        raindrops_search_incollection:
+          type: boolean
+        raindrops_sort:
+          type: string
+        default_collection_view:
+          type: string
+        nested_view_legacy:
+          type: boolean
+        add_default_collection:
+          type: number
+        acknowledge:
+          type: array
+        ai_suggestions:
+          type: boolean
+        filters_hide:
+          type: boolean
+
+    Group:
+      type: object
+      required: [title, hidden, sort, collections]
+      properties:
+        title:
+          type: string
+        hidden:
+          type: boolean
+        sort:
+          type: integer
+        collections:
+          type: array
+          items:
+            type: integer
+
+    User:
+      type: object
+      required:
+        [_id, config, email, files, fullName, groups, password, pro, registered]
+      properties:
+        _id:
+          type: integer
+        config:
+          $ref: "#/components/schemas/UserConfig"
+        dropbox:
+          type: object
+          required: [enabled]
+          properties:
+            enabled:
+              type: boolean
+        email:
+          type: string
+          format: email
+        email_MD5:
+          type: string
+        files:
+          type: object
+          required: [used, size, lastCheckPoint]
+          properties:
+            used:
+              type: integer
+            size:
+              type: integer
+            lastCheckPoint:
+              type: string
+              format: date-time
+        fullName:
+          type: string
+        gdrive:
+          type: object
+          required: [enabled]
+          properties:
+            enabled:
+              type: boolean
+        groups:
+          type: array
+          items:
+            $ref: "#/components/schemas/Group"
+        password:
+          type: boolean
+        pro:
+          type: boolean
+        proExpire:
+          type: string
+          format: date-time
+        registered:
+          type: string
+          format: date-time
+        tfa:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+        name:
+          type: string
+        avatar:
+          type: string
+        lastAction:
+          type: string
+          format: date-time
+        lastVisit:
+          type: string
+          format: date-time
+        lastUpdate:
+          type: string
+          format: date-time
+
+    # TODO: Re-declare schema per API responses rather than making it reusable
+    UserRef:
+      type: object
+      required: [$id, $ref]
+      properties:
+        $id:
+          type: integer
+        $ref:
+          type: string
+
+    CreatorRef:
+      oneOf:
+        - type: object
+          required: [_id, email, name]
+          properties:
+            _id:
+              type: integer
+            name:
+              type: string
+            email:
+              type: string
+            avatar:
+              type: string
+        - type: integer
+
+    CollectionRef:
+      type: object
+      nullable: true
+      required: [$ref, $id]
+      properties:
+        $ref:
+          type: string
+          enum: [collections]
+        $id:
+          type: integer
+        oid:
+          type: integer
+
+    CollectionAccess:
+      type: object
+      required: [draggable, for, level, root]
+      properties:
+        draggable:
+          type: boolean
+        for:
+          type: integer
+        level:
+          type: integer
+        root:
+          type: boolean
+
+    Collection:
+      type: object
+      required: [
+          _id,
+          title,
+          description,
+          user,
+          parent,
+          public,
+          view,
+          count,
+          cover,
+          sort,
+          expanded,
+          creatorRef,
+          lastAction,
+          created,
+          lastUpdate,
+          slug,
+          # If cover image exists
+          # color,
+          access,
+          author,
+          parent,
+        ]
+      properties:
+        _id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        user:
+          $ref: "#/components/schemas/UserRef"
+        public:
+          type: boolean
+        view:
+          type: string
+        count:
+          type: integer
+        cover:
+          type: array
+          items:
+            type: string
+        sort:
+          type: integer
+        expanded:
+          type: boolean
+        creatorRef:
+          $ref: "#/components/schemas/CreatorRef"
+        lastAction:
+          type: string
+          format: date-time
+        created:
+          type: string
+          format: date-time
+        lastUpdate:
+          type: string
+          format: date-time
+        slug:
+          type: string
+        color:
+          type: string
+        access:
+          $ref: "#/components/schemas/CollectionAccess"
+        author:
+          type: boolean
+        parent:
+          type: object
+          nullable: true
+
+    SimpleResponse:
+      type: object
+      required: [result]
+      properties:
+        result:
+          type: boolean
+
+    GetRootCollectionsResponse:
+      type: object
+      required: [result, items]
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Collection"
+
+    RemoveCollectionsResponse:
+      type: object
+      required: [result, modified, ids]
+      properties:
+        result:
+          type: boolean
+        modified:
+          type: integer
+        ids:
+          type: array
+          items:
+            type: integer
+
+    GetChildCollectionsResponse:
+      type: object
+      required: [result, items]
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            allOf:
+              - $ref: "#/components/schemas/Collection"
+              - type: object
+                required: [parent]
+                properties:
+                  parent:
+                    $ref: "#/components/schemas/CollectionRef"
+
+    GetCollectionResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        item:
+          $ref: "#/components/schemas/Collection"
+
+    UpdateCollectionRequest:
+      type: object
+      properties:
+        view:
+          type: string
+        title:
+          type: string
+        sort:
+          type: integer
+        public:
+          type: boolean
+          description: "Collection and raindrops that it contains will be accessible without authentication?"
+        parent:
+          $ref: "#/components/schemas/CollectionRef"
+        cover:
+          type: array
+          items:
+            type: string
+            format: uri
+        expanded:
+          type: boolean
+
+    UpdateCollectionResponse:
+      type: object
+      required: [result, item]
+      properties:
+        result:
+          type: boolean
+        item:
+          $ref: "#/components/schemas/Collection"
+
+    CreateCollectionRequest:
+      type: object
+      required: [view, title, sort, public, cover]
+      properties:
+        view:
+          type: string
+        title:
+          type: string
+        sort:
+          type: integer
+        public:
+          type: boolean
+        parent:
+          $ref: "#/components/schemas/CollectionRef"
+        cover:
+          type: array
+          items:
+            type: string
+            format: uri
+
+    CreateCollectionResponse:
+      type: object
+      required: [result, item]
+      properties:
+        result:
+          type: boolean
+        item:
+          allOf:
+            - $ref: "#/components/schemas/Collection"
+            - type: object
+              required: [__v, creatorRef, parent]
+              properties:
+                __v:
+                  type: integer
+                creatorRef:
+                  type: integer
+                parent:
+                  type: object
+                  nullable: true
+
+    UploadCollectionCoverResponse:
+      type: object
+      required: [result, item]
+      properties:
+        result:
+          type: boolean
+        item:
+          allOf:
+            - $ref: "#/components/schemas/Collection"
+            - type: object
+              required: [__v]
+              properties:
+                __v:
+                  type: integer
+
+    MergeCollectionsResponse:
+      type: object
+      required: [result, modified, ids]
+      properties:
+        result:
+          type: boolean
+        modified:
+          type: integer
+        ids:
+          type: array
+          items:
+            type: integer
+
+    RemoveAllEmptyCollectionsResponse:
+      type: object
+      required: [result, count]
+      properties:
+        result:
+          type: boolean
+        count:
+          type: integer
+
+    GetSystemCollectionStatsResponse:
+      type: object
+      required: [result, items, meta]
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            required: [count, _id]
+            properties:
+              count:
+                type: integer
+              _id:
+                type: integer
+        meta:
+          type: object
+          required: [pro, _id, changedBookmarksDate]
+          properties:
+            _id:
+              type: integer
+            pro:
+              type: boolean
+            changedBookmarksDate:
+              type: string
+              format: date-time
+
+    # GetCollaboratorsResponse
+    ShareCollectionRequest:
+      type: object
+      required: [emails, role]
+      properties:
+        role:
+          $ref: "#/components/schemas/Role"
+        emails:
+          type: array
+          items:
+            type: string
+            format: email
+
+    ShareCollectionResponse:
+      type: object
+      required: [result, token, link]
+      properties:
+        result:
+          type: boolean
+          example: true
+        token:
+          type: string
+        link:
+          type: string
+
+    # ChangeCollaboratorAccessLevelResponse
+    # DeleteCollaboratorResponse
+    # AcceptInvitationResponse
+
+    SearchCoversResponse:
+      type: object
+      required: [result, items]
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            required: [title, icons]
+            properties:
+              title:
+                type: string
+              icons:
+                type: array
+                items:
+                  type: object
+                  required: [png]
+                  properties:
+                    png:
+                      type: string
+                      format: uri
+
+    GetFeaturedCoversResponse:
+      type: object
+      required: [result, items]
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            required: [title, icons]
+            properties:
+              title:
+                type: string
+              link:
+                type: string
+                format: uri
+              sort:
+                type: integer
+              icons:
+                type: array
+                items:
+                  type: object
+                  required: [png]
+                  properties:
+                    png:
+                      type: string
+                      format: uri
+
+    GetFiltersResponse:
+      type: object
+      required: [collectionId, created, result, tags, types]
+      additionalProperties:
+        type: object
+        required: [_id, count]
+        properties:
+          _id:
+            type: string
+          count:
+            type: integer
+
+      properties:
+        result:
+          type: boolean
+        collectionId:
+          type: integer
+        created:
+          type: array
+          items:
+            type: object
+            required: [_id, count]
+            properties:
+              _id:
+                type: string
+              count:
+                type: integer
+        tags:
+          type: array
+          items:
+            type: object
+            required: [_id, count]
+            properties:
+              _id:
+                type: string
+              count:
+                type: integer
+        types:
+          type: array
+          items:
+            type: object
+            required: [_id, count]
+            properties:
+              _id:
+                type: string
+              count:
+                type: integer
+
+    GetAllHighlightsResponse:
+      type: object
+      required: [result, items]
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            required: [link, title, tags, _id, text, note, created, raindropRef]
+            properties:
+              link:
+                type: string
+                format: uri
+              title:
+                type: string
+              tags:
+                type: array
+                items:
+                  type: string
+              _id:
+                type: string
+              text:
+                type: string
+              note:
+                type: string
+              created:
+                type: string
+                format: date-time
+              raindropRef:
+                type: integer
+
+    GetHighlightsInCollectionResponse:
+      type: object
+      required: [result, items]
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            required: [link, title, tags, _id, text, note, created, raindropRef]
+            properties:
+              link:
+                type: string
+                format: uri
+              title:
+                type: string
+              tags:
+                type: array
+                items:
+                  type: string
+              _id:
+                type: string
+              text:
+                type: string
+              note:
+                type: string
+              created:
+                type: string
+                format: date-time
+              raindropRef:
+                type: integer
+
+    ParseURLResponse:
+      type: object
+      required: [result, item]
+      properties:
+        result:
+          type: boolean
+        item:
+          type: object
+          required: [title, excerpt, cover, media, type, meta]
+          properties:
+            title:
+              type: string
+            excerpt:
+              type: string
+            cover:
+              type: string
+            media:
+              type: array
+              items:
+                type: object
+                required: [link]
+                properties:
+                  link:
+                    type: string
+            type:
+              type: string
+            meta:
+              type: object
+              required: [tags]
+              properties:
+                tags:
+                  type: array
+                  items:
+                    type: string
+
+    CheckURLsExistResponse:
+      type: object
+      required: [result, ids, duplicates, id]
+      properties:
+        result:
+          type: boolean
+        ids:
+          type: array
+          items:
+            type: integer
+        duplicates:
+          type: array
+          items:
+            type: object
+            required: [_id, link]
+            properties:
+              _id:
+                type: integer
+              link:
+                type: string
+        id:
+          type: integer
+
+    ImportHTMLBookmarkFileResponse:
+      type: object
+      required: [result, items, count]
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImportHTMLBookmarkFileResponseItemFolder"
+        count:
+          type: object
+          required: [bookmarks, folders, tags, highlights]
+          properties:
+            bookmarks:
+              type: integer
+            folders:
+              type: integer
+            tags:
+              type: integer
+            highlights:
+              type: integer
+
+    ImportHTMLBookmarkFileResponseItemFolder:
+      type: object
+      required: [title, folders, bookmarks]
+      properties:
+        title:
+          type: string
+        folders:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImportHTMLBookmarkFileResponseItemFolder"
+        bookmarks:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImportHTMLBookmarkFileResponseItemBookmark"
+
+    ImportHTMLBookmarkFileResponseItemBookmark:
+      type: object
+      required:
+        [
+          link,
+          title,
+          excerpt,
+          created,
+          lastUpdate,
+          tags,
+          note,
+          cover,
+          media,
+          important,
+        ]
+      properties:
+        link:
+          type: string
+          format: uri
+        title:
+          type: string
+        excerpt:
+          type: string
+        created:
+          type: string
+          format: date-time
+        lastUpdate:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string
+        note:
+          type: string
+        cover:
+          type: string
+        media:
+          type: array
+          items:
+            type: object
+            required: [link]
+            properties:
+              link:
+                type: string
+        important:
+          type: boolean
+
+    CreateRaindropRequest:
+      type: object
+      required: [link]
+      properties:
+        pleaseParse:
+          type: object
+        created:
+          type: string
+        lastUpdate:
+          type: string
+        order:
+          type: number
+        important:
+          type: boolean
+        tags:
+          type: array
+        media:
+          type: array
+          items:
+            type: object
+            required: [link]
+            properties:
+              link:
+                type: string
+        cover:
+          type: string
+        collection:
+          type: object
+          required: [$id]
+          properties:
+            $id:
+              type: integer
+        type:
+          type: string
+        excerpt:
+          type: string
+        title:
+          type: string
+        link:
+          type: string
+        highlights:
+          type: array
+          items:
+            type: object
+            required: [text, note]
+            properties:
+              text:
+                type: string
+              note:
+                type: string
+        reminder:
+          type: object
+
+    CreateRaindropResponse:
+      type: object
+      required: [result, item]
+      properties:
+        result:
+          type: boolean
+        item:
+          type: object
+          required:
+            [
+              __v,
+              _id,
+              collection,
+              collectionId,
+              cover,
+              created,
+              creatorRef,
+              domain,
+              excerpt,
+              lastUpdate,
+              link,
+              media,
+              note,
+              removed,
+              sort,
+              tags,
+              title,
+              type,
+              user,
+            ]
+          properties:
+            __v:
+              type: integer
+            _id:
+              type: integer
+            collection:
+              $ref: "#/components/schemas/CollectionRef"
+            collectionId:
+              type: integer
+            cover:
+              type: string
+            created:
+              type: string
+              format: date-time
+            creatorRef:
+              $ref: "#/components/schemas/CreatorRef"
+            domain:
+              type: string
+            excerpt:
+              type: string
+            lastUpdate:
+              type: string
+              format: date-time
+            link:
+              type: string
+              format: uri
+            media:
+              type: array
+              items:
+                type: object
+                required: [link, type]
+                properties:
+                  link:
+                    type: string
+                  type:
+                    type: string
+            note:
+              type: string
+            removed:
+              type: boolean
+            sort:
+              type: integer
+            tags:
+              type: array
+              items:
+                type: string
+            title:
+              type: string
+            type:
+              type: string
+            user:
+              $ref: "#/components/schemas/UserRef"
+
+    GetRaindropResponse:
+      type: object
+      required: [result, author, item]
+      properties:
+        result:
+          type: boolean
+        author:
+          type: boolean
+        item:
+          type: object
+          required:
+            [
+              _id,
+              collection,
+              collectionId,
+              cover,
+              created,
+              creatorRef,
+              domain,
+              excerpt,
+              highlights,
+              lastUpdate,
+              link,
+              media,
+              note,
+              removed,
+              sort,
+              tags,
+              title,
+              type,
+              user,
+            ]
+          properties:
+            _id:
+              type: integer
+            collection:
+              $ref: "#/components/schemas/CollectionRef"
+            collectionId:
+              type: integer
+            cover:
+              type: string
+            created:
+              type: string
+              format: date-time
+            creatorRef:
+              $ref: "#/components/schemas/CreatorRef"
+            domain:
+              type: string
+            excerpt:
+              type: string
+            highlights:
+              type: array
+              items:
+                type: object
+                required: [text, note, created, lastUpdate, creatorRef, _id]
+                properties:
+                  text:
+                    type: string
+                  note:
+                    type: string
+                  created:
+                    type: string
+                    format: date-time
+                  lastUpdate:
+                    type: string
+                    format: date-time
+                  creatorRef:
+                    $ref: "#/components/schemas/CreatorRef"
+                  _id:
+                    type: string
+            lastUpdate:
+              type: string
+              format: date-time
+            link:
+              type: string
+              format: uri
+            media:
+              type: array
+              items:
+                type: object
+                required: [link, type]
+                properties:
+                  link:
+                    type: string
+                  type:
+                    type: string
+            note:
+              type: string
+            removed:
+              type: boolean
+            sort:
+              type: integer
+            tags:
+              type: array
+              items:
+                type: string
+            title:
+              type: string
+            type:
+              type: string
+            user:
+              $ref: "#/components/schemas/UserRef"
+
+    UpdateRaindropRequest:
+      type: object
+
+    UpdateRaindropResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        item:
+          type: object
+          required:
+            [
+              __v,
+              _id,
+              collection,
+              collectionId,
+              cover,
+              created,
+              creatorRef,
+              domain,
+              excerpt,
+              lastUpdate,
+              link,
+              media,
+              note,
+              removed,
+              sort,
+              tags,
+              title,
+              type,
+              user,
+              highlights,
+            ]
+          properties:
+            __v:
+              type: integer
+            _id:
+              type: integer
+            collection:
+              $ref: "#/components/schemas/CollectionRef"
+            collectionId:
+              type: integer
+            cover:
+              type: string
+            created:
+              type: string
+              format: date-time
+            creatorRef:
+              $ref: "#/components/schemas/CreatorRef"
+            domain:
+              type: string
+            excerpt:
+              type: string
+            lastUpdate:
+              type: string
+              format: date-time
+            link:
+              type: string
+              format: uri
+            media:
+              type: array
+              items:
+                type: object
+                required: [link, type]
+                properties:
+                  link:
+                    type: string
+                  type:
+                    type: string
+            note:
+              type: string
+            removed:
+              type: boolean
+            sort:
+              type: integer
+            tags:
+              type: array
+              items:
+                type: string
+            title:
+              type: string
+            type:
+              type: string
+            user:
+              $ref: "#/components/schemas/UserRef"
+            highlights:
+              type: array
+              items:
+                type: object
+                required: [text, note, created, lastUpdate, creatorRef, _id]
+                properties:
+                  text:
+                    type: string
+                  note:
+                    type: string
+                  created:
+                    type: string
+                    format: date-time
+                  lastUpdate:
+                    type: string
+                    format: date-time
+                  creatorRef:
+                    $ref: "#/components/schemas/CreatorRef"
+                  _id:
+                    type: string
+
+    RemoveRaindropResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        item:
+          type: object
+          required:
+            [
+              _id,
+              collection,
+              collectionId,
+              cover,
+              created,
+              creatorRef,
+              domain,
+              excerpt,
+              lastUpdate,
+              link,
+              media,
+              note,
+              order,
+              removed,
+              sort,
+              tags,
+              title,
+              type,
+              user,
+            ]
+          properties:
+            _id:
+              type: integer
+            collection:
+              $ref: "#/components/schemas/CollectionRef"
+            collectionId:
+              type: integer
+            cover:
+              type: string
+            created:
+              type: string
+              format: date-time
+            creatorRef:
+              $ref: "#/components/schemas/CreatorRef"
+            domain:
+              type: string
+            excerpt:
+              type: string
+            lastUpdate:
+              type: string
+              format: date-time
+            link:
+              type: string
+              format: uri
+            media:
+              type: array
+              items:
+                type: object
+                required: [link, type]
+                properties:
+                  link:
+                    type: string
+                  type:
+                    type: string
+            note:
+              type: string
+            order:
+              type: integer
+            removed:
+              type: boolean
+            sort:
+              type: integer
+            tags:
+              type: array
+              items:
+                type: string
+            title:
+              type: string
+            type:
+              type: string
+            user:
+              $ref: "#/components/schemas/UserRef"
+
+    UploadFileRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+        collectionId:
+          type: integer
+
+    UploadFileResponse:
+      type: object
+      required: [result, item]
+      properties:
+        result:
+          type: boolean
+        item:
+          type: object
+          required:
+            [
+              __v,
+              _id,
+              collection,
+              collectionId,
+              cover,
+              created,
+              creatorRef,
+              domain,
+              excerpt,
+              file,
+              lastUpdate,
+              link,
+              media,
+              note,
+              removed,
+              sort,
+              tags,
+              title,
+              type,
+              user,
+            ]
+          properties:
+            __v:
+              type: integer
+            _id:
+              type: integer
+            collection:
+              $ref: "#/components/schemas/CollectionRef"
+            collectionId:
+              type: integer
+            cover:
+              type: string
+              format: uri
+            created:
+              type: string
+              format: date-time
+            creatorRef:
+              $ref: "#/components/schemas/CreatorRef"
+            domain:
+              type: string
+            excerpt:
+              type: string
+            file:
+              type: object
+              required: [name, size, type]
+              properties:
+                name:
+                  type: string
+                size:
+                  type: integer
+                type:
+                  type: string
+            lastUpdate:
+              type: string
+              format: date-time
+            link:
+              type: string
+              format: uri
+            media:
+              type: array
+              items:
+                type: object
+                required: [link, type]
+                properties:
+                  link:
+                    type: string
+                  type:
+                    type: string
+            note:
+              type: string
+            removed:
+              type: boolean
+            sort:
+              type: integer
+            tags:
+              type: array
+              items:
+                type: string
+            title:
+              type: string
+            type:
+              type: string
+            user:
+              $ref: "#/components/schemas/UserRef"
+
+    UploadRaindropCoverRequest:
+      type: object
+      properties:
+        cover:
+          type: string
+          format: binary
+
+    UploadRaindropCoverResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        item:
+          type: object
+          required:
+            [
+              __v,
+              _id,
+              collection,
+              collectionId,
+              cover,
+              created,
+              creatorRef,
+              domain,
+              excerpt,
+              lastUpdate,
+              link,
+              media,
+              note,
+              removed,
+              sort,
+              tags,
+              title,
+              type,
+              user,
+            ]
+          properties:
+            __v:
+              type: integer
+            _id:
+              type: integer
+            collection:
+              $ref: "#/components/schemas/CollectionRef"
+            collectionId:
+              type: integer
+            cover:
+              type: string
+              format: uri
+            created:
+              type: string
+              format: date-time
+            creatorRef:
+              $ref: "#/components/schemas/CreatorRef"
+            domain:
+              type: string
+            excerpt:
+              type: string
+            lastUpdate:
+              type: string
+              format: date-time
+            link:
+              type: string
+              format: uri
+            media:
+              type: array
+              items:
+                type: object
+                required: [link, type]
+                properties:
+                  link:
+                    type: string
+                  type:
+                    type: string
+            note:
+              type: string
+            removed:
+              type: boolean
+            sort:
+              type: integer
+            tags:
+              type: array
+              items:
+                type: string
+            title:
+              type: string
+            type:
+              type: string
+            user:
+              $ref: "#/components/schemas/UserRef"
+
+    SuggestForNewBookmarkResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+
+    SuggestForExistingBookmarkResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+
+    GetRaindropsResponse:
+      type: object
+      required: [result, collectionId, count, items]
+      properties:
+        result:
+          type: boolean
+        collectionId:
+          type: integer
+        count:
+          type: integer
+        items:
+          type: array
+          items:
+            type: object
+            required:
+              [
+                _id,
+                collection,
+                collectionId,
+                cover,
+                created,
+                creatorRef,
+                domain,
+                excerpt,
+                highlights,
+                lastUpdate,
+                link,
+                media,
+                note,
+                removed,
+                sort,
+                tags,
+                title,
+                type,
+                user,
+              ]
+            properties:
+              _id:
+                type: integer
+              collection:
+                $ref: "#/components/schemas/CollectionRef"
+              collectionId:
+                type: integer
+              cover:
+                type: string
+              created:
+                type: string
+                format: date-time
+              creatorRef:
+                $ref: "#/components/schemas/CreatorRef"
+              domain:
+                type: string
+              excerpt:
+                type: string
+              highlights:
+                type: array
+                items:
+                  type: object
+                  required: [text, note, created, lastUpdate, creatorRef, _id]
+                  properties:
+                    text:
+                      type: string
+                    note:
+                      type: string
+                    created:
+                      type: string
+                      format: date-time
+                    lastUpdate:
+                      type: string
+                      format: date-time
+                    creatorRef:
+                      $ref: "#/components/schemas/CreatorRef"
+                    _id:
+                      type: string
+              lastUpdate:
+                type: string
+                format: date-time
+              link:
+                type: string
+                format: uri
+              media:
+                type: array
+                items:
+                  type: object
+                  required: [link, type]
+                  properties:
+                    link:
+                      type: string
+                    type:
+                      type: string
+              note:
+                type: string
+              removed:
+                type: boolean
+              sort:
+                type: integer
+              tags:
+                type: array
+                items:
+                  type: string
+              title:
+                type: string
+              type:
+                type: string
+              user:
+                $ref: "#/components/schemas/UserRef"
+
+    UpdateRaindropsRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+        important:
+          type: boolean
+        tags:
+          type: array
+          items:
+            type: string
+        media:
+          type: array
+          items:
+            type: string
+            format: uri
+        cover:
+          type: string
+        collection:
+          type: object
+          properties:
+            $id:
+              type: integer
+
+    UpdateRaindropsResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        modified:
+          type: integer
+
+    RemoveRaindropsRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+
+    RemoveRaindropsResponse:
+      type: object
+      required: [result, modified]
+      properties:
+        result:
+          type: boolean
+        modified:
+          type: integer
+
+    CreateRaindropsRequest:
+      type: object
+
+    CreateRaindropsResponse:
+      type: object
+      required: [result, items]
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            required:
+              [
+                __v,
+                _id,
+                collection,
+                collectionId,
+                cover,
+                created,
+                creatorRef,
+                domain,
+                excerpt,
+                lastUpdate,
+                link,
+                media,
+                note,
+                removed,
+                sort,
+                tags,
+                title,
+                type,
+                user,
+                highlights,
+              ]
+            properties:
+              __v:
+                type: integer
+              _id:
+                type: integer
+              collection:
+                $ref: "#/components/schemas/CollectionRef"
+              collectionId:
+                type: integer
+              cover:
+                type: string
+              created:
+                type: string
+                format: date-time
+              creatorRef:
+                $ref: "#/components/schemas/CreatorRef"
+              domain:
+                type: string
+              excerpt:
+                type: string
+              lastUpdate:
+                type: string
+                format: date-time
+              link:
+                type: string
+                format: uri
+              media:
+                type: array
+                items:
+                  type: object
+                  required: [link, type]
+                  properties:
+                    link:
+                      type: string
+                    type:
+                      type: string
+              note:
+                type: string
+              removed:
+                type: boolean
+              sort:
+                type: integer
+              tags:
+                type: array
+                items:
+                  type: string
+              title:
+                type: string
+              type:
+                type: string
+              user:
+                $ref: "#/components/schemas/UserRef"
+              highlights:
+                type: array
+                items:
+                  type: object
+                  required: [text, note, created, lastUpdate, creatorRef, _id]
+                  properties:
+                    text:
+                      type: string
+                    note:
+                      type: string
+                    created:
+                      type: string
+                      format: date-time
+                    lastUpdate:
+                      type: string
+                      format: date-time
+                    creatorRef:
+                      $ref: "#/components/schemas/CreatorRef"
+                    _id:
+                      type: string
+
+    GetTagsInCollectionResponse:
+      type: object
+      required: [result, items]
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            required: [_id, count]
+            properties:
+              _id:
+                type: string
+              count:
+                type: integer
+
+    GetCurrentUserResponse:
+      allOf:
+        - type: object
+          required: [result]
+          properties:
+            result:
+              type: boolean
+        - required: [user]
+          properties:
+            user:
+              $ref: "#/components/schemas/User"
+
+    UpdateCurrentUserRequest:
+      type: object
+      properties:
+        groups:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              hidden:
+                type: boolean
+              sort:
+                type: integer
+              collections:
+                type: array
+                items:
+                  type: integer
+        config:
+          $ref: "#/components/schemas/UserConfig"
+        newpassword:
+          type: string
+        oldpassword:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: string
+
+    UpdateCurrentUserResponse:
+      type: object
+      required: [result, user, item]
+      properties:
+        result:
+          type: boolean
+        user:
+          allOf:
+            - $ref: "#/components/schemas/User"
+            - properties:
+                __v:
+                  type: integer
+        item:
+          allOf:
+            - $ref: "#/components/schemas/User"
+            - properties:
+                __v:
+                  type: integer
+
+    GetPublicUserByNameResponse:
+      type: object
+      required: [result, user]
+      properties:
+        result:
+          type: boolean
+        user:
+          type: object
+          required:
+            [
+              _id,
+              fullName,
+              name,
+              email,
+              avatar,
+              pro,
+              lastAction,
+              registered,
+              lastUpdate,
+              config,
+            ]
+          properties:
+            _id:
+              type: integer
+            fullName:
+              type: string
+            name:
+              type: string
+            email:
+              type: string
+            avatar:
+              type: string
+            pro:
+              type: boolean
+            lastAction:
+              type: string
+              format: date-time
+            registered:
+              type: string
+              format: date-time
+            lastUpdate:
+              type: string
+              format: date-time
+            config:
+              type: object
+              required: [raindrops_hide, nested_view_legacy]
+              properties:
+                raindrops_hide:
+                  type: array
+                  items:
+                    type: string
+                nested_view_legacy:
+                  type: boolean

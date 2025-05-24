@@ -1,0 +1,114 @@
+<script type="text/javascript">
+    RED.nodes.registerType('highlights-get', {
+        category: 'raindrop',
+        color: '#E67E22',
+        defaults: {
+            name: { value: "" },
+            config: { value: "", type: "raindrop-config", required: true },
+            collectionId: { value: "" },
+            perpage: { value: "50" },
+            page: { value: "0" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "highlight.png",
+        label: function() {
+            return this.name || "Get Highlights";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="highlights-get">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-cog"></i> Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-collectionId"><i class="fa fa-folder"></i> Collection ID</label>
+        <input type="text" id="node-input-collectionId" placeholder="Leave empty for all highlights">
+    </div>
+    <div class="form-row">
+        <label for="node-input-perpage"><i class="fa fa-list"></i> Per Page</label>
+        <input type="number" id="node-input-perpage" placeholder="50" min="1" max="50">
+    </div>
+    <div class="form-row">
+        <label for="node-input-page"><i class="fa fa-file-o"></i> Page</label>
+        <input type="number" id="node-input-page" placeholder="0" min="0">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="highlights-get">
+    <p>Retrieves text highlights from raindrops in Raindrop.io</p>
+    
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt class="optional">collectionId <span class="property-type">number</span></dt>
+        <dd>ID of the collection to get highlights from (leave empty for all)</dd>
+        
+        <dt class="optional">perpage <span class="property-type">number</span></dt>
+        <dd>Number of highlights per page (max 50)</dd>
+        
+        <dt class="optional">page <span class="property-type">number</span></dt>
+        <dd>Page number (0-based)</dd>
+        
+        <dt class="optional">payload.collectionId <span class="property-type">number</span></dt>
+        <dd>Alternative way to specify collection ID</dd>
+        
+        <dt class="optional">payload.perpage <span class="property-type">number</span></dt>
+        <dd>Alternative way to specify items per page</dd>
+        
+        <dt class="optional">payload.page <span class="property-type">number</span></dt>
+        <dd>Alternative way to specify page number</dd>
+    </dl>
+    
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">array</span></dt>
+        <dd>Array of highlight objects</dd>
+        
+        <dt>count <span class="property-type">number</span></dt>
+        <dd>Number of highlights returned</dd>
+        
+        <dt>collectionId <span class="property-type">number | null</span></dt>
+        <dd>Collection ID that was searched (null for all collections)</dd>
+        
+        <dt>searchParams <span class="property-type">object</span></dt>
+        <dd>Object containing the search parameters used</dd>
+    </dl>
+    
+    <h3>Highlight Object Properties</h3>
+    <p>Each highlight object contains:</p>
+    <ul>
+        <li><strong>_id</strong> - Unique highlight ID</li>
+        <li><strong>text</strong> - The highlighted text content</li>
+        <li><strong>note</strong> - Optional note/annotation for the highlight</li>
+        <li><strong>created</strong> - Creation date</li>
+        <li><strong>raindropRef</strong> - ID of the raindrop containing this highlight</li>
+        <li><strong>title</strong> - Title of the parent raindrop</li>
+        <li><strong>link</strong> - URL of the parent raindrop</li>
+        <li><strong>tags</strong> - Tags from the parent raindrop</li>
+    </ul>
+    
+    <h3>Use Cases</h3>
+    <p>This node is useful for:</p>
+    <ul>
+        <li><strong>Research</strong> - Collecting highlighted quotes and passages</li>
+        <li><strong>Note-taking</strong> - Extracting important information from bookmarks</li>
+        <li><strong>Content analysis</strong> - Analyzing highlighted text patterns</li>
+        <li><strong>Export/backup</strong> - Backing up text highlights</li>
+        <li><strong>Knowledge management</strong> - Building knowledge bases from highlights</li>
+    </ul>
+    
+    <h3>Details</h3>
+    <p>This node retrieves text highlights that users have created in their raindrops. Highlights are text selections made within web pages or documents.</p>
+    <p>If no collection ID is specified, highlights from all collections will be returned. This is useful for getting a comprehensive view of all highlighted content.</p>
+    <p>Results are paginated with a maximum of 50 highlights per page. Use the page parameter to navigate through larger result sets.</p>
+    <p>The highlights include context information about their parent raindrops, making it easy to understand where each highlight originated.</p>
+</script> 

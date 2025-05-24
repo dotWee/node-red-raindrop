@@ -1,0 +1,84 @@
+<script type="text/javascript">
+    RED.nodes.registerType('raindrop-config', {
+        category: 'config',
+        defaults: {
+            name: { value: "" },
+            server: { value: "https://api.raindrop.io", required: true }
+        },
+        credentials: {
+            accessToken: { type: "password" }
+        },
+        label: function() {
+            return this.name || "Raindrop Config";
+        },
+        oneditprepare: function() {
+            var that = this;
+            
+            $("#node-config-input-test").click(function() {
+                var btn = $(this);
+                btn.prop('disabled', true);
+                btn.text('Testing...');
+                
+                $.post('/raindrop-config/' + that.id + '/test')
+                    .done(function(data) {
+                        if (data.success) {
+                            RED.notify("Connection successful", "success");
+                        } else {
+                            RED.notify("Connection failed: " + data.message, "error");
+                        }
+                    })
+                    .fail(function() {
+                        RED.notify("Connection test failed", "error");
+                    })
+                    .always(function() {
+                        btn.prop('disabled', false);
+                        btn.text('Test Connection');
+                    });
+            });
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="raindrop-config">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-server"><i class="fa fa-server"></i> Server</label>
+        <input type="text" id="node-config-input-server" placeholder="https://api.raindrop.io">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-accessToken"><i class="fa fa-key"></i> Access Token</label>
+        <input type="password" id="node-config-input-accessToken" placeholder="Your Raindrop.io API access token">
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <button type="button" id="node-config-input-test" class="red-ui-button">Test Connection</button>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="raindrop-config">
+    <p>Configuration node for Raindrop.io API access.</p>
+    
+    <h3>Setup</h3>
+    <p>To use this configuration:</p>
+    <ol>
+        <li>Go to <a href="https://app.raindrop.io/settings/integrations" target="_blank">Raindrop.io Integrations</a></li>
+        <li>Create a new app and get your access token</li>
+        <li>Enter the access token in the configuration</li>
+        <li>Click "Test Connection" to verify the setup</li>
+    </ol>
+    
+    <h3>Properties</h3>
+    <dl class="message-properties">
+        <dt>Name <span class="property-type">string</span></dt>
+        <dd>A name to identify this configuration</dd>
+        
+        <dt>Server <span class="property-type">string</span></dt>
+        <dd>The Raindrop.io API server URL (default: https://api.raindrop.io)</dd>
+        
+        <dt>Access Token <span class="property-type">string</span></dt>
+        <dd>Your Raindrop.io API access token</dd>
+    </dl>
+</script> 

@@ -1,0 +1,93 @@
+<script type="text/javascript">
+    RED.nodes.registerType('user-get', {
+        category: 'raindrop',
+        color: '#1ABC9C',
+        defaults: {
+            name: { value: "" },
+            config: { value: "", type: "raindrop-config", required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "person.png",
+        label: function() {
+            return this.name || "Get User Info";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="user-get">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-cog"></i> Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="user-get">
+    <p>Retrieves information about the current authenticated user from Raindrop.io</p>
+    
+    <h3>Inputs</h3>
+    <p>This node doesn't require any input parameters. It will retrieve information for the currently authenticated user.</p>
+    
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>Complete user object with all profile information</dd>
+        
+        <dt>userId <span class="property-type">number</span></dt>
+        <dd>Unique user ID</dd>
+        
+        <dt>userEmail <span class="property-type">string</span></dt>
+        <dd>User's email address</dd>
+        
+        <dt>userFullName <span class="property-type">string</span></dt>
+        <dd>User's full name</dd>
+        
+        <dt>isPro <span class="property-type">boolean</span></dt>
+        <dd>Whether the user has a Pro subscription</dd>
+    </dl>
+    
+    <h3>User Object Properties</h3>
+    <p>The payload contains a complete user object with the following main properties:</p>
+    <ul>
+        <li><strong>_id</strong> - Unique user ID</li>
+        <li><strong>email</strong> - Email address</li>
+        <li><strong>fullName</strong> - Full name</li>
+        <li><strong>name</strong> - Username</li>
+        <li><strong>avatar</strong> - Avatar image URL</li>
+        <li><strong>pro</strong> - Pro subscription status</li>
+        <li><strong>proExpire</strong> - Pro subscription expiration date</li>
+        <li><strong>registered</strong> - Registration date</li>
+        <li><strong>lastAction</strong> - Last activity date</li>
+        <li><strong>config</strong> - User preferences and settings</li>
+        <li><strong>groups</strong> - Collection groups configuration</li>
+        <li><strong>files</strong> - File storage usage information</li>
+    </ul>
+    
+    <h3>Configuration Object</h3>
+    <p>The user's config object includes preferences such as:</p>
+    <ul>
+        <li><strong>font_size</strong> - UI font size preference</li>
+        <li><strong>raindrops_sort</strong> - Default sort order for raindrops</li>
+        <li><strong>raindrops_view</strong> - Default view mode (list, grid, etc.)</li>
+        <li><strong>last_collection</strong> - Last accessed collection</li>
+        <li><strong>lang</strong> - Language preference</li>
+    </ul>
+    
+    <h3>Details</h3>
+    <p>This node retrieves detailed information about the currently authenticated user. It's useful for:</p>
+    <ul>
+        <li>Displaying user profile information</li>
+        <li>Checking subscription status</li>
+        <li>Getting user preferences</li>
+        <li>Monitoring storage usage</li>
+        <li>Understanding collection organization</li>
+    </ul>
+    <p>The information is retrieved using the authentication token configured in the Raindrop config node.</p>
+</script> 

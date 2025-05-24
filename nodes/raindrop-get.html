@@ -1,0 +1,68 @@
+<script type="text/javascript">
+    RED.nodes.registerType('raindrop-get', {
+        category: 'raindrop',
+        color: '#4C9AFF',
+        defaults: {
+            name: { value: "" },
+            config: { value: "", type: "raindrop-config", required: true },
+            raindropId: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "bookmark.png",
+        label: function() {
+            return this.name || "Get Raindrop";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="raindrop-get">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-cog"></i> Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-raindropId"><i class="fa fa-key"></i> Raindrop ID</label>
+        <input type="text" id="node-input-raindropId" placeholder="Leave empty to use msg.raindropId or msg.payload">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="raindrop-get">
+    <p>Retrieves a specific raindrop (bookmark) from Raindrop.io by its ID</p>
+    
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>raindropId <span class="property-type">number</span></dt>
+        <dd>ID of the raindrop to retrieve (can also be in payload)</dd>
+        
+        <dt>payload <span class="property-type">number</span></dt>
+        <dd>Alternative way to pass the raindrop ID</dd>
+        
+        <dt>payload.raindropId <span class="property-type">number</span></dt>
+        <dd>Another alternative way to pass the raindrop ID</dd>
+    </dl>
+    
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>The complete raindrop object including all metadata</dd>
+        
+        <dt>raindropId <span class="property-type">number</span></dt>
+        <dd>ID of the retrieved raindrop</dd>
+        
+        <dt>author <span class="property-type">boolean</span></dt>
+        <dd>Whether the current user is the author of this raindrop</dd>
+    </dl>
+    
+    <h3>Details</h3>
+    <p>This node retrieves a specific raindrop by its ID. The raindrop ID can be provided either in the node configuration or through the input message.</p>
+    <p>The returned raindrop object includes all available metadata such as title, excerpt, tags, highlights, cover image, creation date, etc.</p>
+    <p>If the raindrop is not found or the user doesn't have access to it, an error will be thrown.</p>
+</script> 

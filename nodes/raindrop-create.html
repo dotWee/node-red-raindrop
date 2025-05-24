@@ -1,0 +1,108 @@
+<script type="text/javascript">
+    RED.nodes.registerType('raindrop-create', {
+        category: 'raindrop',
+        color: '#4C9AFF',
+        defaults: {
+            name: { value: "" },
+            config: { value: "", type: "raindrop-config", required: true },
+            collectionId: { value: "" },
+            link: { value: "" },
+            title: { value: "" },
+            excerpt: { value: "" },
+            tags: { value: "" },
+            important: { value: false }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "bookmark.png",
+        label: function() {
+            return this.name || "Create Raindrop";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="raindrop-create">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-cog"></i> Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-collectionId"><i class="fa fa-folder"></i> Collection ID</label>
+        <input type="text" id="node-input-collectionId" placeholder="0 for default, leave empty to use msg.collectionId">
+    </div>
+    <div class="form-row">
+        <label for="node-input-link"><i class="fa fa-link"></i> Link</label>
+        <input type="text" id="node-input-link" placeholder="Leave empty to use msg.link or msg.payload.link">
+    </div>
+    <div class="form-row">
+        <label for="node-input-title"><i class="fa fa-text-width"></i> Title</label>
+        <input type="text" id="node-input-title" placeholder="Leave empty to use msg.title or msg.payload.title">
+    </div>
+    <div class="form-row">
+        <label for="node-input-excerpt"><i class="fa fa-align-left"></i> Excerpt</label>
+        <textarea id="node-input-excerpt" placeholder="Leave empty to use msg.excerpt or msg.payload.excerpt" rows="3"></textarea>
+    </div>
+    <div class="form-row">
+        <label for="node-input-tags"><i class="fa fa-tags"></i> Tags</label>
+        <input type="text" id="node-input-tags" placeholder="Comma-separated tags, leave empty to use msg.tags or msg.payload.tags">
+    </div>
+    <div class="form-row">
+        <label for="node-input-important"><i class="fa fa-star"></i> Important</label>
+        <input type="checkbox" id="node-input-important" style="display: inline-block; width: auto; vertical-align: top;">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="raindrop-create">
+    <p>Creates a new raindrop (bookmark) in Raindrop.io</p>
+    
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.link <span class="property-type">string</span></dt>
+        <dd>The URL to bookmark (required if not set in node configuration)</dd>
+        
+        <dt class="optional">payload.collectionId <span class="property-type">number</span></dt>
+        <dd>ID of the collection to add the raindrop to (0 for default)</dd>
+        
+        <dt class="optional">payload.title <span class="property-type">string</span></dt>
+        <dd>Title of the bookmark</dd>
+        
+        <dt class="optional">payload.excerpt <span class="property-type">string</span></dt>
+        <dd>Description/excerpt of the bookmark</dd>
+        
+        <dt class="optional">payload.tags <span class="property-type">array | string</span></dt>
+        <dd>Tags for the bookmark (array or comma-separated string)</dd>
+        
+        <dt class="optional">payload.important <span class="property-type">boolean</span></dt>
+        <dd>Mark as important/favorite</dd>
+        
+        <dt class="optional">payload.cover <span class="property-type">string</span></dt>
+        <dd>Cover image URL</dd>
+        
+        <dt class="optional">payload.note <span class="property-type">string</span></dt>
+        <dd>Additional notes</dd>
+        
+        <dt class="optional">payload.type <span class="property-type">string</span></dt>
+        <dd>Type of content (link, article, image, video, document, audio)</dd>
+    </dl>
+    
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>The created raindrop object</dd>
+        
+        <dt>raindropId <span class="property-type">number</span></dt>
+        <dd>ID of the created raindrop</dd>
+    </dl>
+    
+    <h3>Details</h3>
+    <p>This node creates a new bookmark in Raindrop.io. The link is required - it can be provided either in the node configuration or in the message payload.</p>
+    <p>All other fields are optional and can be provided either through the node configuration or the message payload. Message payload values take precedence over node configuration.</p>
+    <p>If no collection ID is specified, the raindrop will be added to the default "Unsorted" collection (ID: 0).</p>
+</script> 

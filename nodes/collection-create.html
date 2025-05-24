@@ -1,0 +1,114 @@
+<script type="text/javascript">
+    RED.nodes.registerType('collection-create', {
+        category: 'collection',
+        color: '#9B59B6',
+        defaults: {
+            name: { value: "" },
+            config: { value: "", type: "raindrop-config", required: true },
+            title: { value: "" },
+            description: { value: "" },
+            view: { value: "list" },
+            public: { value: false },
+            parentId: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "folder.png",
+        label: function() {
+            return this.name || "Create Collection";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="collection-create">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-cog"></i> Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-title"><i class="fa fa-text-width"></i> Title</label>
+        <input type="text" id="node-input-title" placeholder="Leave empty to use msg.title or msg.payload.title">
+    </div>
+    <div class="form-row">
+        <label for="node-input-description"><i class="fa fa-align-left"></i> Description</label>
+        <textarea id="node-input-description" placeholder="Leave empty to use msg.description or msg.payload.description" rows="3"></textarea>
+    </div>
+    <div class="form-row">
+        <label for="node-input-view"><i class="fa fa-eye"></i> View</label>
+        <select id="node-input-view">
+            <option value="list">List</option>
+            <option value="simple">Simple</option>
+            <option value="grid">Grid</option>
+            <option value="masonry">Masonry</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-public"><i class="fa fa-globe"></i> Public</label>
+        <input type="checkbox" id="node-input-public" style="display: inline-block; width: auto; vertical-align: top;">
+        <span style="margin-left: 10px; color: #666;">Make collection publicly accessible</span>
+    </div>
+    <div class="form-row">
+        <label for="node-input-parentId"><i class="fa fa-sitemap"></i> Parent Collection ID</label>
+        <input type="text" id="node-input-parentId" placeholder="Leave empty for root level collection">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="collection-create">
+    <p>Creates a new collection in Raindrop.io</p>
+    
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.title <span class="property-type">string</span></dt>
+        <dd>Title of the collection (required if not set in node configuration)</dd>
+        
+        <dt class="optional">payload.description <span class="property-type">string</span></dt>
+        <dd>Description of the collection</dd>
+        
+        <dt class="optional">payload.view <span class="property-type">string</span></dt>
+        <dd>View type: list, simple, grid, or masonry</dd>
+        
+        <dt class="optional">payload.public <span class="property-type">boolean</span></dt>
+        <dd>Whether the collection should be publicly accessible</dd>
+        
+        <dt class="optional">payload.parentId <span class="property-type">number</span></dt>
+        <dd>ID of parent collection to create this as a child collection</dd>
+        
+        <dt class="optional">payload.cover <span class="property-type">array</span></dt>
+        <dd>Array of cover image URLs</dd>
+    </dl>
+    
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>The created collection object</dd>
+        
+        <dt>collectionId <span class="property-type">number</span></dt>
+        <dd>ID of the created collection</dd>
+    </dl>
+    
+    <h3>View Types</h3>
+    <ul>
+        <li><strong>list</strong> - Standard list view with details</li>
+        <li><strong>simple</strong> - Simple list view</li>
+        <li><strong>grid</strong> - Grid view with thumbnails</li>
+        <li><strong>masonry</strong> - Pinterest-style masonry layout</li>
+    </ul>
+    
+    <h3>Details</h3>
+    <p>This node creates a new collection for organizing raindrops. A collection title is required - it can be provided either in the node configuration or through the message payload.</p>
+    <p>Collections can be:</p>
+    <ul>
+        <li><strong>Public</strong> - Accessible without authentication</li>
+        <li><strong>Private</strong> - Only accessible to the owner (default)</li>
+        <li><strong>Child collections</strong> - Nested under a parent collection</li>
+    </ul>
+    <p>Message payload values take precedence over node configuration values.</p>
+    <p>The created collection will initially be empty. Use raindrop creation nodes to add bookmarks to it.</p>
+</script> 

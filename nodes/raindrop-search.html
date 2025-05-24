@@ -1,0 +1,133 @@
+<script type="text/javascript">
+    RED.nodes.registerType('raindrop-search', {
+        category: 'raindrop',
+        color: '#4C9AFF',
+        defaults: {
+            name: { value: "" },
+            config: { value: "", type: "raindrop-config", required: true },
+            collectionId: { value: "" },
+            search: { value: "" },
+            sort: { value: "" },
+            perpage: { value: "50" },
+            page: { value: "0" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "search.png",
+        label: function() {
+            return this.name || "Search Raindrops";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="raindrop-search">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-cog"></i> Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-collectionId"><i class="fa fa-folder"></i> Collection ID</label>
+        <input type="text" id="node-input-collectionId" placeholder="0 for all, -1 for Unsorted, -99 for Trash">
+    </div>
+    <div class="form-row">
+        <label for="node-input-search"><i class="fa fa-search"></i> Search</label>
+        <input type="text" id="node-input-search" placeholder="Search query (supports operators)">
+    </div>
+    <div class="form-row">
+        <label for="node-input-sort"><i class="fa fa-sort"></i> Sort</label>
+        <select id="node-input-sort">
+            <option value="">Default (-created)</option>
+            <option value="-created">Date descending</option>
+            <option value="created">Date ascending</option>
+            <option value="score">Relevancy</option>
+            <option value="-sort">Order</option>
+            <option value="title">Title ascending</option>
+            <option value="-title">Title descending</option>
+            <option value="domain">Domain ascending</option>
+            <option value="-domain">Domain descending</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-perpage"><i class="fa fa-list"></i> Per Page</label>
+        <input type="number" id="node-input-perpage" placeholder="50" min="1" max="50">
+    </div>
+    <div class="form-row">
+        <label for="node-input-page"><i class="fa fa-file-o"></i> Page</label>
+        <input type="number" id="node-input-page" placeholder="0" min="0">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="raindrop-search">
+    <p>Searches and retrieves raindrops (bookmarks) from Raindrop.io with filtering and pagination</p>
+    
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt class="optional">collectionId <span class="property-type">number</span></dt>
+        <dd>Collection to search in (0=all, -1=Unsorted, -99=Trash)</dd>
+        
+        <dt class="optional">search <span class="property-type">string</span></dt>
+        <dd>Search query with support for operators</dd>
+        
+        <dt class="optional">sort <span class="property-type">string</span></dt>
+        <dd>Sort order (-created, created, score, -sort, title, -title, domain, -domain)</dd>
+        
+        <dt class="optional">perpage <span class="property-type">number</span></dt>
+        <dd>Number of results per page (max 50)</dd>
+        
+        <dt class="optional">page <span class="property-type">number</span></dt>
+        <dd>Page number (0-based)</dd>
+        
+        <dt class="optional">payload.collectionId <span class="property-type">number</span></dt>
+        <dd>Alternative way to specify collection ID</dd>
+        
+        <dt class="optional">payload.search <span class="property-type">string</span></dt>
+        <dd>Alternative way to specify search query</dd>
+    </dl>
+    
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">array</span></dt>
+        <dd>Array of raindrop objects matching the search criteria</dd>
+        
+        <dt>count <span class="property-type">number</span></dt>
+        <dd>Total number of raindrops in the collection</dd>
+        
+        <dt>collectionId <span class="property-type">number</span></dt>
+        <dd>ID of the searched collection</dd>
+        
+        <dt>searchParams <span class="property-type">object</span></dt>
+        <dd>Object containing the search parameters used</dd>
+    </dl>
+    
+    <h3>Search Operators</h3>
+    <p>The search field supports various operators:</p>
+    <ul>
+        <li><code>tag:example</code> - Search by tag</li>
+        <li><code>type:article</code> - Search by type (link, article, image, video, document, audio)</li>
+        <li><code>domain:example.com</code> - Search by domain</li>
+        <li><code>important:true</code> - Search important bookmarks</li>
+        <li><code>broken:true</code> - Search broken links</li>
+        <li><code>created:2023</code> - Search by creation year</li>
+        <li><code>"exact phrase"</code> - Search exact phrase</li>
+    </ul>
+    
+    <h3>Collection IDs</h3>
+    <ul>
+        <li><strong>0</strong> - All raindrops (except Trash)</li>
+        <li><strong>-1</strong> - Unsorted collection</li>
+        <li><strong>-99</strong> - Trash</li>
+        <li><strong>Other numbers</strong> - Specific collection ID</li>
+    </ul>
+    
+    <h3>Details</h3>
+    <p>This node provides comprehensive search and filtering capabilities for raindrops. All parameters can be provided either through the node configuration or the input message.</p>
+    <p>The search supports complex queries using operators and can be combined for powerful filtering.</p>
+    <p>Results are paginated with a maximum of 50 items per page as per API limitations.</p>
+</script> 

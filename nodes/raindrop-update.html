@@ -1,0 +1,120 @@
+<script type="text/javascript">
+    RED.nodes.registerType('raindrop-update', {
+        category: 'raindrop',
+        color: '#4C9AFF',
+        defaults: {
+            name: { value: "" },
+            config: { value: "", type: "raindrop-config", required: true },
+            raindropId: { value: "" },
+            title: { value: "" },
+            excerpt: { value: "" },
+            tags: { value: "" },
+            important: { value: "" },
+            collectionId: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "bookmark.png",
+        label: function() {
+            return this.name || "Update Raindrop";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="raindrop-update">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-cog"></i> Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-raindropId"><i class="fa fa-key"></i> Raindrop ID</label>
+        <input type="text" id="node-input-raindropId" placeholder="Leave empty to use msg.raindropId or msg.payload._id">
+    </div>
+    <div class="form-row">
+        <label for="node-input-title"><i class="fa fa-text-width"></i> Title</label>
+        <input type="text" id="node-input-title" placeholder="Leave empty to use msg.title or msg.payload.title">
+    </div>
+    <div class="form-row">
+        <label for="node-input-excerpt"><i class="fa fa-align-left"></i> Excerpt</label>
+        <textarea id="node-input-excerpt" placeholder="Leave empty to use msg.excerpt or msg.payload.excerpt" rows="3"></textarea>
+    </div>
+    <div class="form-row">
+        <label for="node-input-tags"><i class="fa fa-tags"></i> Tags</label>
+        <input type="text" id="node-input-tags" placeholder="Comma-separated tags, leave empty to use msg.tags or msg.payload.tags">
+    </div>
+    <div class="form-row">
+        <label for="node-input-important"><i class="fa fa-star"></i> Important</label>
+        <select id="node-input-important">
+            <option value="">Use message value</option>
+            <option value="true">Mark as important</option>
+            <option value="false">Unmark as important</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-collectionId"><i class="fa fa-folder"></i> Move to Collection</label>
+        <input type="text" id="node-input-collectionId" placeholder="Collection ID to move to (leave empty to keep current)">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="raindrop-update">
+    <p>Updates an existing raindrop (bookmark) in Raindrop.io</p>
+    
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>raindropId <span class="property-type">number</span></dt>
+        <dd>ID of the raindrop to update (can also be in payload._id)</dd>
+        
+        <dt class="optional">payload.title <span class="property-type">string</span></dt>
+        <dd>New title for the bookmark</dd>
+        
+        <dt class="optional">payload.excerpt <span class="property-type">string</span></dt>
+        <dd>New description/excerpt</dd>
+        
+        <dt class="optional">payload.tags <span class="property-type">array | string</span></dt>
+        <dd>New tags (array or comma-separated string)</dd>
+        
+        <dt class="optional">payload.important <span class="property-type">boolean</span></dt>
+        <dd>Mark/unmark as important</dd>
+        
+        <dt class="optional">payload.collectionId <span class="property-type">number</span></dt>
+        <dd>Move to different collection</dd>
+        
+        <dt class="optional">payload.cover <span class="property-type">string</span></dt>
+        <dd>New cover image URL</dd>
+        
+        <dt class="optional">payload.note <span class="property-type">string</span></dt>
+        <dd>Additional notes</dd>
+        
+        <dt class="optional">payload.link <span class="property-type">string</span></dt>
+        <dd>Update the URL</dd>
+        
+        <dt class="optional">payload.type <span class="property-type">string</span></dt>
+        <dd>Content type (link, article, image, video, document, audio)</dd>
+        
+        <dt class="optional">payload.highlights <span class="property-type">array</span></dt>
+        <dd>Text highlights array</dd>
+    </dl>
+    
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>The updated raindrop object</dd>
+        
+        <dt>raindropId <span class="property-type">number</span></dt>
+        <dd>ID of the updated raindrop</dd>
+    </dl>
+    
+    <h3>Details</h3>
+    <p>This node updates an existing raindrop. Only the fields that are provided (either through node configuration or message payload) will be updated.</p>
+    <p>The raindrop ID is required and can be provided through the node configuration or in the message (msg.raindropId, msg.payload.raindropId, or msg.payload._id).</p>
+    <p>Message payload values take precedence over node configuration values.</p>
+    <p>If no update data is provided, the node will throw an error.</p>
+    <p>To move a raindrop to a different collection, provide the target collection ID in the collectionId field.</p>
+</script> 

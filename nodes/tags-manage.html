@@ -1,0 +1,161 @@
+<script type="text/javascript">
+    RED.nodes.registerType('tags-manage', {
+        category: 'raindrop',
+        color: '#F39C12',
+        defaults: {
+            name: { value: "" },
+            config: { value: "", type: "raindrop-config", required: true },
+            collectionId: { value: "" },
+            operation: { value: "rename" },
+            tags: { value: "" },
+            replaceName: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "tag.png",
+        label: function() {
+            return this.name || "Manage Tags";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        },
+        oneditprepare: function() {
+            $("#node-input-operation").change(function() {
+                const operation = $(this).val();
+                if (operation === 'delete') {
+                    $("#replace-name-row").hide();
+                } else {
+                    $("#replace-name-row").show();
+                }
+            });
+            
+            // Trigger change event on load
+            $("#node-input-operation").trigger("change");
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="tags-manage">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-cog"></i> Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-collectionId"><i class="fa fa-folder"></i> Collection ID</label>
+        <input type="text" id="node-input-collectionId" placeholder="0 for all collections">
+    </div>
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-cogs"></i> Operation</label>
+        <select id="node-input-operation">
+            <option value="rename">Rename</option>
+            <option value="merge">Merge</option>
+            <option value="delete">Delete</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-tags"><i class="fa fa-tags"></i> Tags</label>
+        <input type="text" id="node-input-tags" placeholder="Comma-separated tag names">
+    </div>
+    <div class="form-row" id="replace-name-row">
+        <label for="node-input-replaceName"><i class="fa fa-pencil"></i> Replace With</label>
+        <input type="text" id="node-input-replaceName" placeholder="New tag name (for rename/merge)">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="tags-manage">
+    <p>Manages tags in Raindrop.io - rename, merge, or delete tags</p>
+    
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>operation <span class="property-type">string</span></dt>
+        <dd>Operation to perform: "rename", "merge", or "delete"</dd>
+        
+        <dt>tags <span class="property-type">array | string</span></dt>
+        <dd>Tags to operate on (array or comma-separated string)</dd>
+        
+        <dt class="optional">collectionId <span class="property-type">number</span></dt>
+        <dd>Collection ID (0 for all collections)</dd>
+        
+        <dt class="optional">replaceName <span class="property-type">string</span></dt>
+        <dd>New tag name (required for rename/merge operations)</dd>
+        
+        <dt class="optional">payload.operation <span class="property-type">string</span></dt>
+        <dd>Alternative way to specify operation</dd>
+        
+        <dt class="optional">payload.tags <span class="property-type">array | string</span></dt>
+        <dd>Alternative way to specify tags</dd>
+    </dl>
+    
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>API response object</dd>
+        
+        <dt>operation <span class="property-type">string</span></dt>
+        <dd>The operation that was performed</dd>
+        
+        <dt>tags <span class="property-type">array</span></dt>
+        <dd>The tags that were operated on</dd>
+        
+        <dt>replaceName <span class="property-type">string</span></dt>
+        <dd>The replacement name (for rename/merge operations)</dd>
+        
+        <dt>collectionId <span class="property-type">number</span></dt>
+        <dd>Collection ID that was affected</dd>
+    </dl>
+    
+    <h3>Operations</h3>
+    
+    <h4>Rename</h4>
+    <p>Renames a single tag to a new name. All raindrops with the old tag will be updated to use the new tag name.</p>
+    <ul>
+        <li><strong>Tags:</strong> Single tag name to rename</li>
+        <li><strong>Replace With:</strong> New tag name</li>
+    </ul>
+    
+    <h4>Merge</h4>
+    <p>Merges multiple tags into a single tag. All raindrops with any of the specified tags will be updated to use the replacement tag.</p>
+    <ul>
+        <li><strong>Tags:</strong> Multiple tag names to merge</li>
+        <li><strong>Replace With:</strong> Target tag name to merge into</li>
+    </ul>
+    
+    <h4>Delete</h4>
+    <p>Permanently deletes tags from all raindrops in the collection. The tags will be removed from all raindrops that use them.</p>
+    <ul>
+        <li><strong>Tags:</strong> Tag names to delete</li>
+        <li><strong>Replace With:</strong> Not required for delete operations</li>
+    </ul>
+    
+    <h3>Examples</h3>
+    
+    <h4>Rename a tag</h4>
+    <pre>
+msg.operation = "rename";
+msg.tags = ["old-tag"];
+msg.replaceName = "new-tag";
+    </pre>
+    
+    <h4>Merge multiple tags</h4>
+    <pre>
+msg.operation = "merge";
+msg.tags = ["javascript", "js", "node.js"];
+msg.replaceName = "javascript";
+    </pre>
+    
+    <h4>Delete tags</h4>
+    <pre>
+msg.operation = "delete";
+msg.tags = ["obsolete-tag", "unused-tag"];
+    </pre>
+    
+    <h3>Details</h3>
+    <p><strong>⚠️ Warning:</strong> Tag operations are permanent and affect all raindrops in the specified collection.</p>
+    <p>Use Collection ID 0 to operate on tags across all collections, or specify a specific collection ID to limit the operation to that collection.</p>
+    <p>For rename and merge operations, if the replacement tag already exists, the specified tags will be merged into the existing tag.</p>
+    <p>Delete operations permanently remove tags from all raindrops - this cannot be undone.</p>
+</script> 

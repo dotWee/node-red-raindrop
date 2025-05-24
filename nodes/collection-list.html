@@ -1,0 +1,88 @@
+<script type="text/javascript">
+    RED.nodes.registerType('collection-list', {
+        category: 'collection',
+        color: '#9B59B6',
+        defaults: {
+            name: { value: "" },
+            config: { value: "", type: "raindrop-config", required: true },
+            includeChildCollections: { value: false }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "folder.png",
+        label: function() {
+            return this.name || "List Collections";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="collection-list">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-cog"></i> Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-includeChildCollections"><i class="fa fa-sitemap"></i> Include Child Collections</label>
+        <input type="checkbox" id="node-input-includeChildCollections" style="display: inline-block; width: auto; vertical-align: top;">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="collection-list">
+    <p>Lists all collections from Raindrop.io</p>
+    
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt class="optional">includeChildCollections <span class="property-type">boolean</span></dt>
+        <dd>Whether to include child collections in the results</dd>
+        
+        <dt class="optional">payload.includeChildCollections <span class="property-type">boolean</span></dt>
+        <dd>Alternative way to specify whether to include child collections</dd>
+    </dl>
+    
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">array</span></dt>
+        <dd>Array of collection objects</dd>
+        
+        <dt>count <span class="property-type">number</span></dt>
+        <dd>Number of collections returned</dd>
+        
+        <dt>includeChildCollections <span class="property-type">boolean</span></dt>
+        <dd>Whether child collections were included</dd>
+    </dl>
+    
+    <h3>Collection Object Properties</h3>
+    <p>Each collection object contains the following main properties:</p>
+    <ul>
+        <li><strong>_id</strong> - Unique collection ID</li>
+        <li><strong>title</strong> - Collection name</li>
+        <li><strong>description</strong> - Collection description</li>
+        <li><strong>count</strong> - Number of raindrops in the collection</li>
+        <li><strong>cover</strong> - Cover image URLs</li>
+        <li><strong>public</strong> - Whether the collection is public</li>
+        <li><strong>view</strong> - View type (list, grid, etc.)</li>
+        <li><strong>created</strong> - Creation date</li>
+        <li><strong>lastUpdate</strong> - Last update date</li>
+        <li><strong>parent</strong> - Parent collection reference (for child collections)</li>
+    </ul>
+    
+    <h3>System Collections</h3>
+    <p>Raindrop.io includes several system collections with special IDs:</p>
+    <ul>
+        <li><strong>0</strong> - All raindrops (virtual collection)</li>
+        <li><strong>-1</strong> - Unsorted collection</li>
+        <li><strong>-99</strong> - Trash collection</li>
+    </ul>
+    
+    <h3>Details</h3>
+    <p>This node retrieves all collections accessible to the authenticated user. By default, it only returns root-level collections.</p>
+    <p>If "Include Child Collections" is enabled, it will also fetch and include nested collections. Child collections have a parent reference.</p>
+    <p>The collections are returned as an array containing all the metadata including raindrop counts, cover images, and access permissions.</p>
+</script> 

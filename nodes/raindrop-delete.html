@@ -1,0 +1,84 @@
+<script type="text/javascript">
+    RED.nodes.registerType('raindrop-delete', {
+        category: 'raindrop',
+        color: '#E74C3C',
+        defaults: {
+            name: { value: "" },
+            config: { value: "", type: "raindrop-config", required: true },
+            raindropId: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "remove.png",
+        label: function() {
+            return this.name || "Delete Raindrop";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="raindrop-delete">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-cog"></i> Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-raindropId"><i class="fa fa-key"></i> Raindrop ID</label>
+        <input type="text" id="node-input-raindropId" placeholder="Leave empty to use msg.raindropId, msg.payload._id, or msg.payload">
+    </div>
+    <div class="form-row">
+        <div style="background-color: #ffe6e6; padding: 10px; border: 1px solid #ffb3b3; border-radius: 4px;">
+            <i class="fa fa-warning" style="color: #e74c3c;"></i>
+            <strong>Warning:</strong> This action will permanently delete the raindrop. This cannot be undone.
+        </div>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="raindrop-delete">
+    <p>Permanently deletes a raindrop (bookmark) from Raindrop.io</p>
+    
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>raindropId <span class="property-type">number</span></dt>
+        <dd>ID of the raindrop to delete</dd>
+        
+        <dt>payload <span class="property-type">number</span></dt>
+        <dd>Alternative way to pass the raindrop ID</dd>
+        
+        <dt>payload.raindropId <span class="property-type">number</span></dt>
+        <dd>Another alternative way to pass the raindrop ID</dd>
+        
+        <dt>payload._id <span class="property-type">number</span></dt>
+        <dd>Raindrop ID from a raindrop object</dd>
+    </dl>
+    
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>The deleted raindrop object (for confirmation)</dd>
+        
+        <dt>raindropId <span class="property-type">number</span></dt>
+        <dd>ID of the deleted raindrop</dd>
+        
+        <dt>deleted <span class="property-type">boolean</span></dt>
+        <dd>Always true, indicating successful deletion</dd>
+    </dl>
+    
+    <h3>Details</h3>
+    <p><strong>⚠️ Warning:</strong> This node permanently deletes raindrops. This action cannot be undone.</p>
+    <p>The raindrop ID can be provided either in the node configuration or through the input message in various ways:</p>
+    <ul>
+        <li>msg.raindropId</li>
+        <li>msg.payload (if it's a number)</li>
+        <li>msg.payload.raindropId</li>
+        <li>msg.payload._id (from a raindrop object)</li>
+    </ul>
+    <p>On successful deletion, the node outputs the deleted raindrop object along with confirmation flags.</p>
+    <p>If the raindrop is not found or the user doesn't have permission to delete it, an error will be thrown.</p>
+</script> 

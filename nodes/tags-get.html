@@ -1,0 +1,81 @@
+<script type="text/javascript">
+    RED.nodes.registerType('tags-get', {
+        category: 'raindrop',
+        color: '#F39C12',
+        defaults: {
+            name: { value: "" },
+            config: { value: "", type: "raindrop-config", required: true },
+            collectionId: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "tag.png",
+        label: function() {
+            return this.name || "Get Tags";
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="tags-get">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-cog"></i> Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-collectionId"><i class="fa fa-folder"></i> Collection ID</label>
+        <input type="text" id="node-input-collectionId" placeholder="0 for all collections, leave empty to use msg.collectionId">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="tags-get">
+    <p>Retrieves all tags from a specific collection or all collections in Raindrop.io</p>
+    
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt class="optional">collectionId <span class="property-type">number</span></dt>
+        <dd>ID of the collection to get tags from (0 for all collections)</dd>
+        
+        <dt class="optional">payload.collectionId <span class="property-type">number</span></dt>
+        <dd>Alternative way to specify collection ID</dd>
+    </dl>
+    
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">array</span></dt>
+        <dd>Array of tag objects with name and count properties</dd>
+        
+        <dt>collectionId <span class="property-type">number</span></dt>
+        <dd>ID of the collection the tags were retrieved from</dd>
+        
+        <dt>totalTags <span class="property-type">number</span></dt>
+        <dd>Total number of tags found</dd>
+    </dl>
+    
+    <h3>Tag Object Properties</h3>
+    <p>Each tag object contains:</p>
+    <ul>
+        <li><strong>name</strong> - The tag name/text</li>
+        <li><strong>count</strong> - Number of raindrops using this tag</li>
+    </ul>
+    
+    <h3>Collection IDs</h3>
+    <ul>
+        <li><strong>0</strong> - Get tags from all collections</li>
+        <li><strong>-1</strong> - Get tags from Unsorted collection</li>
+        <li><strong>-99</strong> - Get tags from Trash</li>
+        <li><strong>Other numbers</strong> - Specific collection ID</li>
+    </ul>
+    
+    <h3>Details</h3>
+    <p>This node retrieves all tags used in the specified collection along with their usage counts. Tags are useful for organizing and filtering raindrops.</p>
+    <p>If no collection ID is specified (or 0 is used), tags from all collections will be returned.</p>
+    <p>The tags are sorted by usage frequency, with the most commonly used tags appearing first.</p>
+    <p>This is useful for building tag clouds, auto-completion suggestions, or analyzing tag usage patterns.</p>
+</script> 
