@@ -1,0 +1,57 @@
+name: Dependabot Auto Approve
+
+on: pull_request
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  auto-approve:
+    runs-on: ubuntu-latest
+    # Check if the PR is from Dependabot
+    if: github.actor == 'dependabot[bot]'
+
+    permissions:
+      pull-requests: write # Required to approve PRs
+      contents: read # Required to checkout code
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x] # Match your CI workflow
+
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Checkout the PR branch, not the target branch
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Approve PR if not already approved
+        if: success() # Only run if previous steps (including tests) were successful
+        run: |
+          gh pr checkout "$PR_URL" # sets the upstream metadata for `gh pr status`
+          if [ "$(gh pr status --json reviewDecision -q .currentBranch.reviewDecision)" != "APPROVED" ];
+          then gh pr review --approve "$PR_URL"
+          else echo "PR already approved, skipping additional approvals to minimize emails/notification noise.";
+          fi
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
