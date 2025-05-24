@@ -1,79 +1,82 @@
-module.exports = function(RED) {
-    "use strict";
+module.exports = function collectionCreateNode(RED) {
+  function CollectionCreateNode(config) {
+    RED.nodes.createNode(this, config);
+    const node = this;
+    node.configNode = RED.nodes.getNode(config.config);
 
-    function CollectionCreateNode(config) {
-        RED.nodes.createNode(this, config);
-        
-        this.config = RED.nodes.getNode(config.config);
-        this.title = config.title;
-        this.description = config.description;
-        this.view = config.view;
-        this.public = config.public;
-        this.parentId = config.parentId;
-        
-        var node = this;
+    node.on('input', async function onInput(msg, _send, _done) {
+      // Deliberately not reassigning send and done for linting
+      const send = _send;
+      const done = _done;
 
-        node.on('input', async function(msg, send, done) {
-            // For older versions of Node-RED compatibility
-            send = send || function() { node.send.apply(node, arguments); };
-            done = done || function(error) { if (error) { node.error(error, msg); } };
+      if (!node.configNode) {
+        node.status({ fill: 'red', shape: 'dot', text: 'Configuration node not set' });
+        done('Configuration node not set');
+        return;
+      }
 
-            try {
-                if (!node.config) {
-                    throw new Error('Raindrop configuration is required');
-                }
+      const { client } = node.configNode;
+      if (!client) {
+        node.status({ fill: 'red', shape: 'dot', text: 'API client not initialized' });
+        done('API client not initialized. Check credentials in config node.');
+        return;
+      }
 
-                const client = node.config.getClient();
-                
-                // Build collection data from node config and message
-                const collectionData = {
-                    title: node.title || msg.title || msg.payload.title || 'New Collection',
-                    view: node.view || msg.view || msg.payload.view || 'list',
-                    sort: 0, // Default sort
-                    public: (node.public !== undefined) ? node.public : (msg.public !== undefined) ? msg.public : (msg.payload.public !== undefined) ? msg.payload.public : false,
-                    cover: []
-                };
+      const title = config.title || msg.payload?.title;
+      const description = config.description || msg.payload?.description;
+      const view = config.view || msg.payload?.view;
+      const publicCollection = config.public || msg.payload?.public || false;
+      const parentId = config.parentId || msg.payload?.parentId;
 
-                // Optional description
-                if (node.description || msg.description || msg.payload.description) {
-                    collectionData.description = node.description || msg.description || msg.payload.description;
-                }
+      if (!title) {
+        node.status({ fill: 'red', shape: 'dot', text: 'Title is required' });
+        done('Title is required to create a collection.');
+        return;
+      }
 
-                // Optional parent collection
-                if (node.parentId || msg.parentId || msg.payload.parentId) {
-                    collectionData.parent = {
-                        $ref: 'collections',
-                        $id: parseInt(node.parentId || msg.parentId || msg.payload.parentId)
-                    };
-                }
+      try {
+        node.status({ fill: 'blue', shape: 'dot', text: 'Creating collection...' });
 
-                // Cover images from message
-                if (msg.payload.cover && Array.isArray(msg.payload.cover)) {
-                    collectionData.cover = msg.payload.cover;
-                }
+        const collectionData = {
+          title,
+          description,
+          view,
+          public: publicCollection
+        };
 
-                node.status({ fill: "blue", shape: "dot", text: "creating..." });
+        if (parentId) {
+          collectionData.parent = { $id: parseInt(parentId, 10) };
+        }
 
-                const response = await client.createCollection({ createCollectionRequest: collectionData });
-                
-                node.status({ fill: "green", shape: "dot", text: "created" });
-                
-                msg.payload = response.data.item;
-                msg.collectionId = response.data.item._id;
-                
-                send(msg);
-                done();
-                
-            } catch (error) {
-                node.status({ fill: "red", shape: "ring", text: "error" });
-                done(error);
-            }
-        });
+        const response = await client.collection.createCollection(collectionData);
 
-        node.on('close', function() {
-            node.status({});
-        });
-    }
+        if (response && response.item) {
+          msg.payload = response.item;
+          node.status({ fill: 'green', shape: 'dot', text: 'Collection created' });
+          send(msg);
+        } else {
+          const errorText = 'Failed to create collection: No item in response';
+          node.status({ fill: 'red', shape: 'dot', text: errorText });
+          msg.payload = response; // Send full response for debugging
+          msg.error = errorText;
+          send(msg); // Send error on output 1
+        }
+        if (done) done();
+      } catch (error) {
+        const errorMessage = error.message || 'Failed to create collection';
+        node.status({ fill: 'red', shape: 'dot', text: errorMessage });
+        if (done) {
+          done(error);
+        } else {
+          node.error(errorMessage, msg);
+        }
+      }
+    });
 
-    RED.nodes.registerType("collection-create", CollectionCreateNode);
-}; 
+    node.on('close', () => {
+      node.status({});
+    });
+  }
+
+  RED.nodes.registerType('collection-create', CollectionCreateNode);
+};

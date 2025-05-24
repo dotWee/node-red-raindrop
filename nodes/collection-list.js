@@ -1,66 +1,62 @@
-module.exports = function(RED) {
-    "use strict";
+module.exports = function collectionListNode(RED) {
+  function CollectionListNode(config) {
+    RED.nodes.createNode(this, config);
+    const node = this;
+    node.configNode = RED.nodes.getNode(config.config);
 
-    function CollectionListNode(config) {
-        RED.nodes.createNode(this, config);
-        
-        this.config = RED.nodes.getNode(config.config);
-        this.includeChildCollections = config.includeChildCollections;
-        
-        var node = this;
+    node.on('input', async function onInput(msg, _send, _done) {
+      const send = _send;
+      const done = _done;
 
-        node.on('input', async function(msg, send, done) {
-            // For older versions of Node-RED compatibility
-            send = send || function() { node.send.apply(node, arguments); };
-            done = done || function(error) { if (error) { node.error(error, msg); } };
+      if (!node.configNode) {
+        node.status({ fill: 'red', shape: 'dot', text: 'Configuration node not set' });
+        done('Configuration node not set');
+        return;
+      }
 
-            try {
-                if (!node.config) {
-                    throw new Error('Raindrop configuration is required');
-                }
+      const { client } = node.configNode;
+      if (!client) {
+        node.status({ fill: 'red', shape: 'dot', text: 'API client not initialized' });
+        done('API client not initialized. Check credentials in config node.');
+        return;
+      }
 
-                const client = node.config.getClient();
-                
-                const includeChildren = node.includeChildCollections || msg.includeChildCollections || msg.payload.includeChildCollections || false;
+      const includeChildCollections = config.includeChildCollections || msg.payload?.includeChildCollections || false;
 
-                node.status({ fill: "blue", shape: "dot", text: "fetching..." });
+      try {
+        node.status({ fill: 'blue', shape: 'dot', text: 'Fetching collections...' });
+        let collections = [];
+        const rootCollectionsResponse = await client.collection.getRootCollections();
+        if (rootCollectionsResponse && rootCollectionsResponse.items) {
+          collections = collections.concat(rootCollectionsResponse.items);
+        }
 
-                let collections = [];
-                
-                // Get root collections
-                const rootResponse = await client.getRootCollections();
-                collections = rootResponse.data.items;
-                
-                // Get child collections if requested
-                if (includeChildren) {
-                    try {
-                        const childResponse = await client.getChildCollections();
-                        collections = collections.concat(childResponse.data.items);
-                    } catch (error) {
-                        // Child collections might not be available for all users
-                        node.warn('Could not fetch child collections: ' + error.message);
-                    }
-                }
-                
-                node.status({ fill: "green", shape: "dot", text: `found ${collections.length}` });
-                
-                msg.payload = collections;
-                msg.count = collections.length;
-                msg.includeChildCollections = includeChildren;
-                
-                send(msg);
-                done();
-                
-            } catch (error) {
-                node.status({ fill: "red", shape: "ring", text: "error" });
-                done(error);
-            }
-        });
+        if (includeChildCollections) {
+          const childCollectionsResponse = await client.collection.getChildCollections();
+          if (childCollectionsResponse && childCollectionsResponse.items) {
+            collections = collections.concat(childCollectionsResponse.items);
+          }
+        }
 
-        node.on('close', function() {
-            node.status({});
-        });
-    }
+        msg.payload = collections;
+        node.status({ fill: 'green', shape: 'dot', text: 'Collections fetched' });
+        send(msg);
+        if (done) done();
+      } catch (error) {
+        const errorMessage = error.message || 'Failed to fetch collections';
+        node.status({ fill: 'red', shape: 'dot', text: errorMessage });
+        if (done) {
+          done(error);
+        } else {
+          node.error(errorMessage, msg);
+        }
+      }
+    });
 
-    RED.nodes.registerType("collection-list", CollectionListNode);
-}; 
+    node.on('close', () => {
+      node.status({});
+    });
+  }
+
+  RED.nodes.registerType('collection-list', CollectionListNode);
+};

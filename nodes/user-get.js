@@ -1,50 +1,47 @@
-module.exports = function(RED) {
-    "use strict";
+module.exports = function (RED) {
+  function UserGetNode(config) {
+    RED.nodes.createNode(this, config);
 
-    function UserGetNode(config) {
-        RED.nodes.createNode(this, config);
-        
-        this.config = RED.nodes.getNode(config.config);
-        
-        var node = this;
+    this.config = RED.nodes.getNode(config.config);
 
-        node.on('input', async function(msg, send, done) {
-            // For older versions of Node-RED compatibility
-            send = send || function() { node.send.apply(node, arguments); };
-            done = done || function(error) { if (error) { node.error(error, msg); } };
+    const node = this;
 
-            try {
-                if (!node.config) {
-                    throw new Error('Raindrop configuration is required');
-                }
+    node.on('input', async (msg, send, done) => {
+      // For older versions of Node-RED compatibility
+      send = send || function () { node.send.apply(node, arguments); };
+      done = done || function (error) { if (error) { node.error(error, msg); } };
 
-                const client = node.config.getClient();
+      try {
+        if (!node.config) {
+          throw new Error('Raindrop configuration is required');
+        }
 
-                node.status({ fill: "blue", shape: "dot", text: "fetching..." });
+        const client = node.config.getClient();
 
-                const response = await client.getCurrentUser();
-                
-                node.status({ fill: "green", shape: "dot", text: "fetched" });
-                
-                msg.payload = response.data.user;
-                msg.userId = response.data.user._id;
-                msg.userEmail = response.data.user.email;
-                msg.userFullName = response.data.user.fullName;
-                msg.isPro = response.data.user.pro;
-                
-                send(msg);
-                done();
-                
-            } catch (error) {
-                node.status({ fill: "red", shape: "ring", text: "error" });
-                done(error);
-            }
-        });
+        node.status({ fill: 'blue', shape: 'dot', text: 'fetching...' });
 
-        node.on('close', function() {
-            node.status({});
-        });
-    }
+        const response = await client.getCurrentUser();
 
-    RED.nodes.registerType("user-get", UserGetNode);
-}; 
+        node.status({ fill: 'green', shape: 'dot', text: 'fetched' });
+
+        msg.payload = response.data.user;
+        msg.userId = response.data.user._id;
+        msg.userEmail = response.data.user.email;
+        msg.userFullName = response.data.user.fullName;
+        msg.isPro = response.data.user.pro;
+
+        send(msg);
+        done();
+      } catch (error) {
+        node.status({ fill: 'red', shape: 'ring', text: 'error' });
+        done(error);
+      }
+    });
+
+    node.on('close', () => {
+      node.status({});
+    });
+  }
+
+  RED.nodes.registerType('user-get', UserGetNode);
+};

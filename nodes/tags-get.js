@@ -1,58 +1,55 @@
-module.exports = function(RED) {
-    "use strict";
+module.exports = function (RED) {
+  function TagsGetNode(config) {
+    RED.nodes.createNode(this, config);
 
-    function TagsGetNode(config) {
-        RED.nodes.createNode(this, config);
-        
-        this.config = RED.nodes.getNode(config.config);
-        this.collectionId = config.collectionId;
-        
-        var node = this;
+    this.config = RED.nodes.getNode(config.config);
+    this.collectionId = config.collectionId;
 
-        node.on('input', async function(msg, send, done) {
-            // For older versions of Node-RED compatibility
-            send = send || function() { node.send.apply(node, arguments); };
-            done = done || function(error) { if (error) { node.error(error, msg); } };
+    const node = this;
 
-            try {
-                if (!node.config) {
-                    throw new Error('Raindrop configuration is required');
-                }
+    node.on('input', async (msg, send, done) => {
+      // For older versions of Node-RED compatibility
+      send = send || function () { node.send.apply(node, arguments); };
+      done = done || function (error) { if (error) { node.error(error, msg); } };
 
-                const client = node.config.getClient();
-                
-                // Get collection ID from node config or message
-                const collectionId = parseInt(node.collectionId || msg.collectionId || msg.payload.collectionId || 0);
+      try {
+        if (!node.config) {
+          throw new Error('Raindrop configuration is required');
+        }
 
-                node.status({ fill: "blue", shape: "dot", text: "fetching..." });
+        const client = node.config.getClient();
 
-                const response = await client.getTagsInCollection({ collectionId: collectionId });
-                
-                node.status({ fill: "green", shape: "dot", text: `found ${response.data.items.length}` });
-                
-                // Extract just the tag names and counts
-                const tags = response.data.items.map(item => ({
-                    name: item._id,
-                    count: item.count
-                }));
-                
-                msg.payload = tags;
-                msg.collectionId = collectionId;
-                msg.totalTags = response.data.items.length;
-                
-                send(msg);
-                done();
-                
-            } catch (error) {
-                node.status({ fill: "red", shape: "ring", text: "error" });
-                done(error);
-            }
-        });
+        // Get collection ID from node config or message
+        const collectionId = parseInt(node.collectionId || msg.collectionId || msg.payload.collectionId || 0);
 
-        node.on('close', function() {
-            node.status({});
-        });
-    }
+        node.status({ fill: 'blue', shape: 'dot', text: 'fetching...' });
 
-    RED.nodes.registerType("tags-get", TagsGetNode);
-}; 
+        const response = await client.getTagsInCollection({ collectionId });
+
+        node.status({ fill: 'green', shape: 'dot', text: `found ${response.data.items.length}` });
+
+        // Extract just the tag names and counts
+        const tags = response.data.items.map((item) => ({
+          name: item._id,
+          count: item.count
+        }));
+
+        msg.payload = tags;
+        msg.collectionId = collectionId;
+        msg.totalTags = response.data.items.length;
+
+        send(msg);
+        done();
+      } catch (error) {
+        node.status({ fill: 'red', shape: 'ring', text: 'error' });
+        done(error);
+      }
+    });
+
+    node.on('close', () => {
+      node.status({});
+    });
+  }
+
+  RED.nodes.registerType('tags-get', TagsGetNode);
+};

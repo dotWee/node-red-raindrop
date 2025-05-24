@@ -1,76 +1,67 @@
-module.exports = function(RED) {
-    "use strict";
+module.exports = function highlightsGetNode(RED) {
+  function HighlightsGetNode(config) {
+    RED.nodes.createNode(this, config);
+    const node = this;
+    node.configNode = RED.nodes.getNode(config.config);
 
-    function HighlightsGetNode(config) {
-        RED.nodes.createNode(this, config);
-        
-        this.config = RED.nodes.getNode(config.config);
-        this.collectionId = config.collectionId;
-        this.perpage = config.perpage;
-        this.page = config.page;
-        
-        var node = this;
+    node.on('input', async function onInput(msg, _send, _done) {
+      const send = _send;
+      const done = _done;
 
-        node.on('input', async function(msg, send, done) {
-            // For older versions of Node-RED compatibility
-            send = send || function() { node.send.apply(node, arguments); };
-            done = done || function(error) { if (error) { node.error(error, msg); } };
+      if (!node.configNode) {
+        node.status({ fill: 'red', shape: 'dot', text: 'Configuration node not set' });
+        done('Configuration node not set');
+        return;
+      }
 
-            try {
-                if (!node.config) {
-                    throw new Error('Raindrop configuration is required');
-                }
+      const { client } = node.configNode;
+      if (!client) {
+        node.status({ fill: 'red', shape: 'dot', text: 'API client not initialized' });
+        done('API client not initialized. Check credentials in config node.');
+        return;
+      }
 
-                const client = node.config.getClient();
-                
-                // Get parameters from node config or message
-                const collectionId = parseInt(node.collectionId || msg.collectionId || msg.payload.collectionId);
-                const perpage = parseInt(node.perpage || msg.perpage || msg.payload.perpage || 50);
-                const page = parseInt(node.page || msg.page || msg.payload.page || 0);
+      const collectionId = config.collectionId || msg.payload?.collectionId;
+      const perPage = parseInt(config.perPage || msg.payload?.perPage || 30, 10);
+      const page = parseInt(config.page || msg.payload?.page || 0, 10);
 
-                node.status({ fill: "blue", shape: "dot", text: "fetching..." });
+      try {
+        node.status({ fill: 'blue', shape: 'dot', text: 'Fetching highlights...' });
+        let response;
+        if (collectionId && collectionId !== '0') {
+          response = await client.highlight.getHighlightsInCollection(parseInt(collectionId, 10), { perpage: perPage, page });
+        } else {
+          response = await client.highlight.getAllHighlights({ perpage: perPage, page });
+        }
 
-                let response;
-                
-                if (collectionId) {
-                    // Get highlights from specific collection
-                    response = await client.getHighlightsInCollection({ 
-                        collectionId: collectionId,
-                        perpage: Math.min(perpage, 50),
-                        page: page
-                    });
-                } else {
-                    // Get all highlights
-                    response = await client.getAllHighlights({
-                        perpage: Math.min(perpage, 50),
-                        page: page
-                    });
-                }
-                
-                node.status({ fill: "green", shape: "dot", text: `found ${response.data.items.length}` });
-                
-                msg.payload = response.data.items;
-                msg.count = response.data.items.length;
-                msg.collectionId = collectionId || null;
-                msg.searchParams = {
-                    collectionId: collectionId || null,
-                    perpage: Math.min(perpage, 50),
-                    page: page
-                };
-                
-                send(msg);
-                done();
-                
-            } catch (error) {
-                node.status({ fill: "red", shape: "ring", text: "error" });
-                done(error);
-            }
-        });
+        if (response && response.items) {
+          msg.payload = response.items;
+          msg.count = response.items.length;
+          msg.collectionId = collectionId || 'all';
+          node.status({ fill: 'green', shape: 'dot', text: `Found ${response.items.length} highlights` });
+          send(msg);
+        } else {
+          const errorText = 'Failed to fetch highlights: No items in response';
+          node.status({ fill: 'red', shape: 'dot', text: errorText });
+          msg.payload = response; // Send full response for debugging
+          msg.error = errorText;
+          send(msg);
+        }
+        if (done) done();
+      } catch (error) {
+        const errorMessage = error.message || 'Failed to fetch highlights';
+        node.status({ fill: 'red', shape: 'dot', text: errorMessage });
+        if (done) {
+          done(error);
+        } else {
+          node.error(errorMessage, msg);
+        }
+      }
+    });
 
-        node.on('close', function() {
-            node.status({});
-        });
-    }
-
-    RED.nodes.registerType("highlights-get", HighlightsGetNode);
-}; 
+    node.on('close', () => {
+      node.status({});
+    });
+  }
+  RED.nodes.registerType('highlights-get', HighlightsGetNode);
+};
