@@ -4,6 +4,7 @@
 [![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/dotwee/node-red-raindrop)](https://github.com/dotWee/node-red-raindrop)
 [![NPM Version](https://img.shields.io/npm/v/%40dotwee%2Fnode-red-raindrop)](https://www.npmjs.com/package/@dotwee/node-red-raindrop)
 [![NPM Downloads](https://img.shields.io/npm/dm/%40dotwee%2Fnode-red-raindrop)](https://www.npmjs.com/package/@dotwee/node-red-raindrop)
+[![CI Status](https://github.com/dotWee/node-red-raindrop/actions/workflows/ci.yml/badge.svg)](https://github.com/dotWee/node-red-raindrop/actions/workflows/ci.yml)
 
 A comprehensive [Node-RED](https://nodered.org) contribution package for interacting with the [Raindrop.io](https://raindrop.io) API. This package provides a complete set of nodes for managing bookmarks, collections, tags, and user information in Raindrop.io.
 
