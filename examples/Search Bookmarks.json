@@ -1,0 +1,44 @@
+[
+  {
+    "id": "comment-search-bookmarks",
+    "type": "comment",
+    "z": "flow1",
+    "name": "This flow demonstrates how to search for JavaScript articles in Raindrop.io using the raindrop-search node.",
+    "info": "",
+    "x": 300,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "inject-search-bookmarks",
+    "type": "inject",
+    "z": "flow1",
+    "name": "Search JS Articles",
+    "props": [
+      { "p": "payload" }
+    ],
+    "payload": {},
+    "payloadType": "json",
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 300,
+    "y": 140,
+    "wires": [["raindrop-search-node"]]
+  },
+  {
+    "id": "raindrop-search-node",
+    "type": "raindrop-search",
+    "z": "flow1",
+    "name": "Search JS Articles",
+    "config": "raindrop-config-node-id",
+    "search": "tag:javascript type:article",
+    "sort": "-created",
+    "perpage": "10",
+    "x": 540,
+    "y": 140,
+    "wires": [[]]
+  }
+] 

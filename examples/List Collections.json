@@ -1,0 +1,42 @@
+[
+  {
+    "id": "comment-list-collections",
+    "type": "comment",
+    "z": "flow1",
+    "name": "This flow demonstrates how to list all collections in Raindrop.io using the collection-list node.",
+    "info": "",
+    "x": 300,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "inject-list-collections",
+    "type": "inject",
+    "z": "flow1",
+    "name": "Get All Collections",
+    "props": [
+      { "p": "payload" }
+    ],
+    "payload": {},
+    "payloadType": "json",
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 300,
+    "y": 140,
+    "wires": [["collection-list-node"]]
+  },
+  {
+    "id": "collection-list-node",
+    "type": "collection-list",
+    "z": "flow1",
+    "name": "Get All Collections",
+    "config": "raindrop-config-node-id",
+    "includeChildCollections": true,
+    "x": 540,
+    "y": 140,
+    "wires": [[]]
+  }
+] 

@@ -107,10 +107,10 @@ You can now use any of the Raindrop nodes in your flows. All operational nodes r
 The search node supports all Raindrop.io search operators:
 
 ```text
-tag:javascript          # Search by tag
-type:article           # Search by type
-domain:github.com      # Search by domain
-important:true         # Important bookmarks only
+tag:javascript        # Search by tag
+type:article          # Search by type
+domain:github.com     # Search by domain
+important:true        # Important bookmarks only
 broken:true           # Broken links only
 created:2023          # By creation year
 "exact phrase"        # Exact phrase search
@@ -192,6 +192,28 @@ Input message:
     }
 ]
 ```
+
+## Example Flows
+
+This package provides ready-to-use example flows to help you get started quickly. You can find them in the `examples/` directory:
+
+- **Create Bookmark**: `examples/Create Bookmark.json`
+- **Search Bookmarks**: `examples/Search Bookmarks.json`
+- **List Collections**: `examples/List Collections.json`
+
+### Importing Example Flows in Node-RED
+
+1. In Node-RED, click the menu (☰) in the top right corner.
+2. Select **Import** > **Examples** > **@dotwee/node-red-raindrop**.
+3. Choose the example you want to import.
+
+Alternatively, you can import the JSON files directly:
+
+1. Open the `examples/` directory in this repository.
+2. Copy the contents of the desired `.json` file.
+3. In Node-RED, click the menu (☰) > **Import** > **Clipboard** and paste the JSON.
+
+These examples are designed to be short and self-contained, with comment nodes describing their functionality. No third-party nodes are required beyond this package.
 
 ## Development
 
@@ -289,7 +311,7 @@ This package provides nodes for the following Raindrop.io API endpoints:
 
 ## License
 
-This project is licensed under the WTFPL License.
+This project is licensed under the WTFPL License. See [LICENSE](./LICENSE) for details.
 
 ## Links
 

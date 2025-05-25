@@ -1,0 +1,47 @@
+[
+  {
+    "id": "comment-create-bookmark",
+    "type": "comment",
+    "z": "flow1",
+    "name": "This flow demonstrates how to create a bookmark in Raindrop.io using the raindrop-create node.",
+    "info": "",
+    "x": 300,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "inject-create-bookmark",
+    "type": "inject",
+    "z": "flow1",
+    "name": "Create Node.js Bookmark",
+    "props": [
+      { "p": "payload" }
+    ],
+    "payload": {
+      "link": "https://nodejs.org",
+      "title": "Node.js Official Website",
+      "tags": ["nodejs", "javascript", "development"],
+      "important": true,
+      "collectionId": 12345
+    },
+    "payloadType": "json",
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 300,
+    "y": 140,
+    "wires": [["raindrop-create-node"]]
+  },
+  {
+    "id": "raindrop-create-node",
+    "type": "raindrop-create",
+    "z": "flow1",
+    "name": "Create Bookmark",
+    "config": "raindrop-config-node-id",
+    "x": 540,
+    "y": 140,
+    "wires": [[]]
+  }
+] 
