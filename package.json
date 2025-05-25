@@ -1,71 +1,83 @@
 {
-  "name": "@dotwee/node-red-raindrop",
-  "version": "1.0.0",
-  "description": "Node-RED nodes for interacting with the RainDrop.io web service.",
-  "homepage": "https://github.com/dotWee/node-red-raindrop",
-  "bugs": {
-    "url": "https://github.com/dotWee/node-red-raindrop/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dotWee/node-red-raindrop.git"
-  },
-  "keywords": [
-    "node-red",
-    "node-red-contrib",
-    "node-red-flow",
-    "bookmark",
-    "raindrop",
-    "raindrop-io",
-    "bookmarks",
-    "api"
-  ],
-  "author": "Lukas Wolfsteiner",
-  "license": "WTFPL",
-  "dependencies": {
-    "@lasuillard/raindrop-client": "^0.6.2",
-    "axios": "^1.6.0"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.27.0",
-    "@eslint/markdown": "^6.4.0",
-    "eslint": "^9.27.0",
-    "eslint-plugin-mocha": "^11.1.0",
-    "globals": "^16.1.0",
-    "mocha": "^10.0.0",
-    "node-red": "^3.0.0",
-    "node-red-node-test-helper": "^0.3.0",
-    "should": "^13.2.3"
-  },
-  "engines": {
-    "node": ">=12.0.0"
-  },
-  "node-red": {
-    "version": ">=2.0.0",
-    "nodes": {
-      "raindrop-config": "nodes/raindrop-config.js",
-      "raindrop-create": "nodes/raindrop-create.js",
-      "raindrop-get": "nodes/raindrop-get.js",
-      "raindrop-update": "nodes/raindrop-update.js",
-      "raindrop-delete": "nodes/raindrop-delete.js",
-      "raindrop-search": "nodes/raindrop-search.js",
-      "collection-create": "nodes/collection-create.js",
-      "collection-get": "nodes/collection-get.js",
-      "collection-update": "nodes/collection-update.js",
-      "collection-delete": "nodes/collection-delete.js",
-      "collection-list": "nodes/collection-list.js",
-      "tags-get": "nodes/tags-get.js",
-      "tags-manage": "nodes/tags-manage.js",
-      "user-get": "nodes/user-get.js",
-      "highlights-get": "nodes/highlights-get.js"
+    "name": "@dotwee/node-red-raindrop",
+    "version": "1.0.0",
+    "description": "Node-RED contribution package for interacting with the Raindrop.io API. Nodes for managing bookmarks, collections, tags, and user information.",
+    "homepage": "https://github.com/dotWee/node-red-raindrop#readme",
+    "bugs": {
+        "url": "https://github.com/dotWee/node-red-raindrop/issues",
+        "email": "lukas+node-red-raindrop@wolfsteiner.media"
+    },
+    "repository": "github:dotWee/node-red-raindrop",
+    "keywords": [
+        "node-red",
+        "node-red-contrib",
+        "node-red-flow",
+        "bookmark",
+        "raindrop",
+        "raindrop-io",
+        "bookmarks",
+        "api"
+    ],
+    "author": {
+        "name": "Lukas Wolfsteiner",
+        "email": "lukas@wolfsteiner.media",
+        "url": "https://lukas.wolfsteiner.media"
+    },
+    "funding": [
+        {
+            "type": "buymeacoffee",
+            "url": "https://buymeacoffee.com/dotwee"
+        },
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/dotWee"
+        }
+    ],
+    "license": "WTFPL",
+    "dependencies": {
+        "@lasuillard/raindrop-client": "^0.6.2",
+        "axios": "^1.6.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.27.0",
+        "@eslint/markdown": "^6.4.0",
+        "eslint": "^9.27.0",
+        "eslint-plugin-mocha": "^11.1.0",
+        "globals": "^16.1.0",
+        "mocha": "^10.0.0",
+        "node-red": "^3.0.0",
+        "node-red-node-test-helper": "^0.3.0",
+        "should": "^13.2.3"
+    },
+    "engines": {
+        "node": ">=12.0.0"
+    },
+    "node-red": {
+        "version": ">=2.0.0",
+        "nodes": {
+            "raindrop-config": "nodes/raindrop-config.js",
+            "raindrop-create": "nodes/raindrop-create.js",
+            "raindrop-get": "nodes/raindrop-get.js",
+            "raindrop-update": "nodes/raindrop-update.js",
+            "raindrop-delete": "nodes/raindrop-delete.js",
+            "raindrop-search": "nodes/raindrop-search.js",
+            "collection-create": "nodes/collection-create.js",
+            "collection-get": "nodes/collection-get.js",
+            "collection-update": "nodes/collection-update.js",
+            "collection-delete": "nodes/collection-delete.js",
+            "collection-list": "nodes/collection-list.js",
+            "tags-get": "nodes/tags-get.js",
+            "tags-manage": "nodes/tags-manage.js",
+            "user-get": "nodes/user-get.js",
+            "highlights-get": "nodes/highlights-get.js"
+        }
+    },
+    "scripts": {
+        "test": "mocha test/**/*_spec.js",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix"
+    },
+    "publishConfig": {
+        "access": "public"
     }
-  },
-  "scripts": {
-    "test": "mocha test/**/*_spec.js",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
 }
