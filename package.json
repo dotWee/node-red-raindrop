@@ -44,7 +44,7 @@
         "eslint": "^9.27.0",
         "eslint-plugin-mocha": "^11.1.0",
         "globals": "^16.1.0",
-        "mocha": "^11.5.0",
+        "mocha": "^11.6.0",
         "node-red": "^4.0.9",
         "node-red-node-test-helper": "^0.3.0",
         "should": "^13.2.3"
