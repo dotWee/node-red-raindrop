@@ -35,7 +35,7 @@
     ],
     "license": "WTFPL",
     "dependencies": {
-        "@lasuillard/raindrop-client": "^0.6.2",
+        "@lasuillard/raindrop-client": "^0.7.0",
         "axios": "^1.6.0"
     },
     "devDependencies": {
