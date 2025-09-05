@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## UNRELEASED
+## [1.0.1](https://github.com/dotWee/node-red-raindrop/releases/tag/v1.0.1) - 2025-09-05
 
 - **Fixed**: Connection test error "client.getCurrentUser is not a function" by using correct UserApi instead of RaindropApi
 - Minor updates and fixes in the npm package metadata

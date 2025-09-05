@@ -1,6 +1,6 @@
 {
     "name": "@dotwee/node-red-raindrop",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Node-RED contribution package for interacting with the Raindrop.io API. Nodes for managing bookmarks, collections, tags, and user information.",
     "homepage": "https://github.com/dotWee/node-red-raindrop#readme",
     "bugs": {
