@@ -24,13 +24,33 @@ module.exports = function (RED) {
 
         const client = node.config.getClient();
 
+        // Get the link - this is required
+        const link = msg.link || msg.payload.link || node.link;
+        if (!link) {
+          throw new Error('Link is required to create a raindrop');
+        }
+
+        // Basic URL validation
+        try {
+          new URL(link);
+        } catch (error) {
+          throw new Error('Link must be a valid URL');
+        }
+
         // Build raindrop data from node config and message
         const raindropData = {
-          link: msg.link || msg.payload.link || node.link,
-          collection: {
-            $id: parseInt(msg.collectionId || msg.payload.collectionId || node.collectionId || 0)
-          }
+          link: link,
+          collection: {}
         };
+
+        // Handle collection ID - only set if provided and valid
+        const collectionId = msg.collectionId || msg.payload.collectionId || node.collectionId;
+        if (collectionId !== undefined && collectionId !== null && collectionId !== '') {
+          const parsedId = parseInt(collectionId);
+          if (!isNaN(parsedId)) {
+            raindropData.collection.$id = parsedId;
+          }
+        }
 
         // Optional fields
         if (msg.title || msg.payload.title || node.title) {

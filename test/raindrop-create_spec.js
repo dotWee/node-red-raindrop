@@ -43,6 +43,52 @@ describe('raindrop-create Node', function() {
     });
   });
 
+  it('should fail without link', function(done) {
+    const flow = [
+      { id: 'c1', type: 'raindrop-config', name: 'test config' },
+      { id: 'n1', type: 'raindrop-create', name: 'test create', config: 'c1' }
+    ];
+
+    helper.load([configNode, createNode], flow, {
+      c1: { accessToken: 'test-token' }
+    }, () => {
+      const n1 = helper.getNode('n1');
+      const c1 = helper.getNode('c1');
+
+      c1.getClient = function () { return { createRaindrop: () => Promise.resolve({ data: { item: {} } }) }; };
+
+      n1.on('call:error', (call) => {
+        call.firstArg.should.have.property('message', 'Link is required to create a raindrop');
+        done();
+      });
+
+      n1.receive({ payload: { title: 'Test' } });
+    });
+  });
+
+  it('should fail with invalid URL', function(done) {
+    const flow = [
+      { id: 'c1', type: 'raindrop-config', name: 'test config' },
+      { id: 'n1', type: 'raindrop-create', name: 'test create', config: 'c1' }
+    ];
+
+    helper.load([configNode, createNode], flow, {
+      c1: { accessToken: 'test-token' }
+    }, () => {
+      const n1 = helper.getNode('n1');
+      const c1 = helper.getNode('c1');
+
+      c1.getClient = function () { return { createRaindrop: () => Promise.resolve({ data: { item: {} } }) }; };
+
+      n1.on('call:error', (call) => {
+        call.firstArg.should.have.property('message', 'Link must be a valid URL');
+        done();
+      });
+
+      n1.receive({ payload: { link: 'invalid-url' } });
+    });
+  });
+
   it('should build raindrop data from node config', function(done) {
     const flow = [
       { id: 'c1', type: 'raindrop-config', name: 'test config' },
@@ -221,6 +267,57 @@ describe('raindrop-create Node', function() {
         payload: {
           link: 'https://example.com',
           tags: 'javascript, node-red'
+        }
+      });
+    });
+  });
+
+  it('should handle collection without ID', function(done) {
+    const flow = [
+      { id: 'c1', type: 'raindrop-config', name: 'test config' },
+      {
+        id: 'n1', type: 'raindrop-create', name: 'test create', config: 'c1'
+      }
+    ];
+
+    const mockClient = {
+      createRaindrop(params) {
+        const data = params.createRaindropRequest;
+        data.should.have.property('link', 'https://example.com');
+        data.should.have.property('collection');
+        data.collection.should.not.have.property('$id'); // Should not have $id when none provided
+
+        return Promise.resolve({
+          data: {
+            item: {
+              _id: 999,
+              link: 'https://example.com'
+            }
+          }
+        });
+      }
+    };
+
+    helper.load([configNode, createNode], flow, {
+      c1: { accessToken: 'test-token' }
+    }, () => {
+      const n1 = helper.getNode('n1');
+      const c1 = helper.getNode('c1');
+
+      c1.getClient = function () { return mockClient; };
+
+      n1.send = function (msg) {
+        msg.payload.should.have.property('_id', 999);
+        done();
+      };
+
+      n1.error = function (error) {
+        done(error);
+      };
+
+      n1.receive({
+        payload: {
+          link: 'https://example.com'
         }
       });
     });
