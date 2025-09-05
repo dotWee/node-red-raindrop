@@ -1,3 +1,5 @@
+const { UserApi } = require('@lasuillard/raindrop-client').generated;
+
 module.exports = function (RED) {
   function UserGetNode(config) {
     RED.nodes.createNode(this, config);
@@ -16,7 +18,7 @@ module.exports = function (RED) {
           throw new Error('Raindrop configuration is required');
         }
 
-        const client = node.config.getClient();
+        const client = node.config.getUserClient();
 
         node.status({ fill: 'blue', shape: 'dot', text: 'fetching...' });
 
