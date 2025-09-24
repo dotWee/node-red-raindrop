@@ -2,21 +2,23 @@ module.exports = function collectionCreateNode(RED) {
   function CollectionCreateNode(config) {
     RED.nodes.createNode(this, config);
     const node = this;
-    node.configNode = RED.nodes.getNode(config.config);
+    node.config = RED.nodes.getNode(config.config);
 
     node.on('input', async function onInput(msg, _send, _done) {
       // Deliberately not reassigning send and done for linting
       const send = _send;
       const done = _done;
 
-      if (!node.configNode) {
+      if (!node.config) {
         node.status({ fill: 'red', shape: 'dot', text: 'Configuration node not set' });
         done('Configuration node not set');
         return;
       }
 
-      const { client } = node.configNode;
-      if (!client) {
+      let client;
+      try {
+        client = node.config.getClient();
+      } catch (err) {
         node.status({ fill: 'red', shape: 'dot', text: 'API client not initialized' });
         done('API client not initialized. Check credentials in config node.');
         return;

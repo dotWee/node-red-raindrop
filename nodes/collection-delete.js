@@ -2,20 +2,22 @@ module.exports = function collectionDeleteNode(RED) {
   function CollectionDeleteNode(config) {
     RED.nodes.createNode(this, config);
     const node = this;
-    node.configNode = RED.nodes.getNode(config.config);
+    node.config = RED.nodes.getNode(config.config);
 
     node.on('input', async function onInput(msg, _send, _done) {
       const send = _send;
       const done = _done;
 
-      if (!node.configNode) {
+      if (!node.config) {
         node.status({ fill: 'red', shape: 'dot', text: 'Configuration node not set' });
         done('Configuration node not set');
         return;
       }
 
-      const { client } = node.configNode;
-      if (!client) {
+      let client;
+      try {
+        client = node.config.getClient();
+      } catch (err) {
         node.status({ fill: 'red', shape: 'dot', text: 'API client not initialized' });
         done('API client not initialized. Check credentials in config node.');
         return;
@@ -25,7 +27,7 @@ module.exports = function collectionDeleteNode(RED) {
 
       if (!collectionId) {
         node.status({ fill: 'red', shape: 'dot', text: 'Collection ID is required' });
-        done('Collection ID is required to delete a collection.');
+        done('Collection ID is required.');
         return;
       }
 

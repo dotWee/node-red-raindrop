@@ -18,7 +18,14 @@ module.exports = function (RED) {
           throw new Error('Raindrop configuration is required');
         }
 
-        const client = node.config.getUserClient();
+        let client;
+        try {
+          client = node.config.getUserClient();
+        } catch (err) {
+          node.status({ fill: 'red', shape: 'dot', text: 'API client not initialized' });
+          done('API client not initialized. Check credentials in config node.');
+          return;
+        }
 
         node.status({ fill: 'blue', shape: 'dot', text: 'fetching...' });
 

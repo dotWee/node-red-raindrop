@@ -17,7 +17,14 @@ module.exports = function (RED) {
           throw new Error('Raindrop configuration is required');
         }
 
-        const client = node.config.getClient();
+        let client;
+        try {
+          client = node.config.getClient();
+        } catch (err) {
+          node.status({ fill: 'red', shape: 'dot', text: 'API client not initialized' });
+          done('API client not initialized. Check credentials in config node.');
+          return;
+        }
 
         // Get raindrop ID from node config or message
         const raindropId = parseInt(node.raindropId || msg.raindropId || msg.payload.raindropId || msg.payload._id || msg.payload);

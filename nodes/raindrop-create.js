@@ -22,7 +22,14 @@ module.exports = function (RED) {
           throw new Error('Raindrop configuration is required');
         }
 
-        const client = node.config.getClient();
+        let client;
+        try {
+          client = node.config.getClient();
+        } catch (err) {
+          node.status({ fill: 'red', shape: 'dot', text: 'API client not initialized' });
+          done('API client not initialized. Check credentials in config node.');
+          return;
+        }
 
         // Get the link - this is required
         const link = msg.link || msg.payload.link || node.link;
