@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## UNRELEASED
 
+- **Fix**: Removed unnecessary '.collection' namespace from client method calls in collection nodes to resolve "Cannot read properties of undefined" error
+
 ## [v1.0.3](https://github.com/dotWee/node-red-raindrop/releases/tag/v1.0.3) - 2025-09-24
 
 - **Refactor**: Standardized config node reference to `node.config` and added consistent try-catch for client initialization across all nodes

@@ -50,7 +50,7 @@ module.exports = function collectionCreateNode(RED) {
           collectionData.parent = { $id: parseInt(parentId, 10) };
         }
 
-        const response = await client.collection.createCollection(collectionData);
+        const response = await client.createCollection(collectionData);
 
         if (response && response.item) {
           msg.payload = response.item;

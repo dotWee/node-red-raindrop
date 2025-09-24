@@ -34,7 +34,7 @@ module.exports = function collectionGetNode(RED) {
       try {
         node.status({ fill: 'blue', shape: 'dot', text: `Fetching collection ${collectionId}...` });
 
-        const response = await client.collection.getCollection(parseInt(collectionId, 10));
+        const response = await client.getCollection(parseInt(collectionId, 10));
 
         if (response && response.item) {
           msg.payload = response.item;

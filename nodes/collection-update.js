@@ -63,7 +63,7 @@ module.exports = function collectionUpdateNode(RED) {
       try {
         node.status({ fill: 'blue', shape: 'dot', text: `Updating collection ${collectionId}...` });
 
-        const response = await client.collection.updateCollection(parseInt(collectionId, 10), updateData);
+        const response = await client.updateCollection(parseInt(collectionId, 10), updateData);
 
         if (response && response.item) {
           msg.payload = response.item;

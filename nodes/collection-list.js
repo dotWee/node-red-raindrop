@@ -28,13 +28,13 @@ module.exports = function collectionListNode(RED) {
       try {
         node.status({ fill: 'blue', shape: 'dot', text: 'Fetching collections...' });
         let collections = [];
-        const rootCollectionsResponse = await client.collection.getRootCollections();
+        const rootCollectionsResponse = await client.getRootCollections();
         if (rootCollectionsResponse && rootCollectionsResponse.items) {
           collections = collections.concat(rootCollectionsResponse.items);
         }
 
         if (includeChildCollections) {
-          const childCollectionsResponse = await client.collection.getChildCollections();
+          const childCollectionsResponse = await client.getChildCollections();
           if (childCollectionsResponse && childCollectionsResponse.items) {
             collections = collections.concat(childCollectionsResponse.items);
           }

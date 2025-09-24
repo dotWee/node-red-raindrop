@@ -34,7 +34,7 @@ module.exports = function collectionDeleteNode(RED) {
       try {
         node.status({ fill: 'blue', shape: 'dot', text: `Deleting collection ${collectionId}...` });
 
-        const response = await client.collection.removeCollection(parseInt(collectionId, 10));
+        const response = await client.removeCollection(parseInt(collectionId, 10));
 
         if (response && response.result) {
           msg.payload = { id: collectionId, success: true, response };
