@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## UNRELEASED
 
+## [v1.0.3](https://github.com/dotWee/node-red-raindrop/releases/tag/v1.0.3) - 2025-09-24
+
+- **Refactor**: Standardized config node reference to `node.config` and added consistent try-catch for client initialization across all nodes
+- **Chore**: Ran linter with fixes and ensured all tests pass after changes
+
 ## [v1.0.2](https://github.com/dotWee/node-red-raindrop/releases/tag/v1.0.2) - 2025-09-05
 
 - **Fixed**: Create Raindrop node 400 error by adding validation for required link field and proper URL validation
