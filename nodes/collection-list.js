@@ -16,7 +16,7 @@ module.exports = function collectionListNode(RED) {
 
       let client;
       try {
-        client = node.config.getClient();
+        client = node.config.getCollectionClient();
       } catch (err) {
         node.status({ fill: 'red', shape: 'dot', text: 'API client not initialized' });
         done('API client not initialized. Check credentials in config node.');

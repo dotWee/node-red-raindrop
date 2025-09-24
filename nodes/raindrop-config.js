@@ -1,4 +1,4 @@
-const { RaindropApi, UserApi, Configuration } = require('@lasuillard/raindrop-client').generated;
+const { RaindropApi, UserApi, CollectionApi, Configuration } = require('@lasuillard/raindrop-client').generated;
 
 module.exports = function (RED) {
   function RaindropConfigNode(config) {
@@ -36,6 +36,20 @@ module.exports = function (RED) {
       });
 
       return new UserApi(configuration);
+    };
+
+    // Create Collection API client instance
+    this.getCollectionClient = function () {
+      if (!this.accessToken) {
+        throw new Error('No access token configured');
+      }
+
+      const configuration = new Configuration({
+        basePath: this.server,
+        accessToken: this.accessToken
+      });
+
+      return new CollectionApi(configuration);
     };
 
     // Test the connection
