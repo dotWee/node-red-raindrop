@@ -14,7 +14,7 @@ jobs:
       id-token: write # to enable OIDC for NPM provenance
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Use Node.js
         uses: actions/setup-node@v6
